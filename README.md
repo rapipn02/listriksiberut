@@ -6,43 +6,6 @@ dan mengelola poin serta hadiah.
 
 Next.js 16 · React 19 · Firebase (Auth + Firestore) · Tailwind 4 · Recharts
 
----
-
-## Menjalankan
-
-```bash
-npm install
-cp .env.example .env.local     # isi nilainya, lihat tabel di bawah
-npm run dev                    # http://localhost:3000
-```
-
-Firebase **wajib** dikonfigurasi — login memakai Firebase Auth, tidak ada mode
-demo tanpa autentikasi.
-
-### Isi `.env.local`
-
-| Variabel | Diambil dari |
-|---|---|
-| `NEXT_PUBLIC_FIREBASE_API_KEY`, `MESSAGING_SENDER_ID`, `APP_ID` | Firebase Console → Project settings → General → Your apps |
-| `GOOGLE_APPLICATION_CREDENTIALS` | Project settings → Service accounts → Generate new private key, simpan sebagai `serviceAccountKey.json` |
-| `CRON_SECRET` | bebas, buat acak: `openssl rand -hex 32` |
-| `ISLANDGRID_API_BASE_URL` | alamat layanan prediksi ML (opsional) |
-
-Sisanya sudah terisi di `.env.example`.
-
-### Menyiapkan data + akun
-
-```bash
-npm run seed
-```
-
-Membuat akun operator, warga contoh, katalog hadiah, stok voucher, sesi Jam Emas
-yang sedang berjalan, dan beberapa pengajuan bukti foto untuk dicoba.
-
-> Koleksi `power_forecasts` milik pipeline ML — seed sengaja melewatinya bila
-> sudah berisi data.
-
----
 
 ## Peran
 
