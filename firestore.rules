@@ -1,0 +1,172 @@
+rules_version = '2';
+
+// Aturan keamanan Firestore IslandGrid AI.
+//
+// Penting: Admin SDK (pipeline ML, scripts/seed.ts, Route Handler web) MELEWATI
+// aturan ini sepenuhnya. Jadi aturan di bawah hanya membatasi klien langsung:
+// browser operator (web) dan aplikasi Android warga.
+//
+// Pasang di: Firebase Console > Firestore Database > Rules > Publish.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ---------- helper ----------
+    function login() {
+      return request.auth != null;
+    }
+
+    function operatorDoc() {
+      return get(/databases/$(database)/documents/operators/$(request.auth.uid)).data;
+    }
+
+    function isOperator() {
+      return login()
+        && exists(/databases/$(database)/documents/operators/$(request.auth.uid))
+        && operatorDoc().aktif == true;
+    }
+
+    function isAdminBumdes() {
+      return isOperator() && operatorDoc().role == 'admin_bumdes';
+    }
+
+    // ---------- operators (allowlist) ----------
+    // Operator hanya boleh membaca datanya sendiri (dipakai saat login untuk cek role).
+    // Tidak ada yang boleh menulis dari klien — pembuatan akun lewat scripts/seed.ts (Admin SDK).
+    match /operators/{uid} {
+      allow read: if login() && request.auth.uid == uid;
+      allow write: if false;
+    }
+
+    // ---------- data grid (hasil pipeline ML) ----------
+    // Boleh dibaca siapa pun yang sudah login: operator (web) & warga (Android).
+    // Penulisan hanya oleh pipeline ML lewat Admin SDK.
+    match /system_status/{doc} {
+      allow read: if login();
+      allow write: if false;
+    }
+
+    match /power_forecasts/{doc} {
+      allow read: if login();
+      allow write: if false;
+    }
+
+    // ---------- poin warga ----------
+    // Operator boleh membaca semua (untuk tabel peringkat).
+    // Warga hanya boleh membaca dokumen miliknya sendiri.
+    //
+    // Penukaran hadiah dijalankan aplikasi mobile lewat Firestore Transaction,
+    // jadi warga perlu izin menulis. Dibatasi seketat mungkin:
+    //   - hanya dokumen miliknya sendiri
+    //   - hanya field total_poin yang boleh berubah
+    //   - nilainya hanya boleh BERKURANG (menukar), tidak pernah bertambah
+    // Penambahan poin (hasil verifikasi) tetap hanya lewat Admin SDK.
+    match /BUMDes_rewards/{uid} {
+      allow read: if isOperator() || (login() && request.auth.uid == uid);
+      allow create, delete: if isAdminBumdes();
+      allow update: if isAdminBumdes()
+        || (
+          login()
+          && request.auth.uid == uid
+          && request.resource.data.diff(resource.data).affectedKeys()
+               .hasOnly(['total_poin'])
+          && request.resource.data.total_poin < resource.data.total_poin
+          && request.resource.data.total_poin >= 0
+        );
+
+      match /riwayat_shifts/{shiftId} {
+        allow read: if isOperator() || (login() && request.auth.uid == uid);
+        allow write: if isAdminBumdes();
+      }
+    }
+
+    // ---------- profil warga ----------
+    // Ditulis aplikasi mobile saat mendaftar; warga hanya boleh menyentuh
+    // dokumen miliknya sendiri.
+    match /users/{uid} {
+      allow read: if isOperator() || (login() && request.auth.uid == uid);
+      allow create, update: if login() && request.auth.uid == uid;
+      allow delete: if false;
+    }
+
+    // ---------- bukti partisipasi warga ----------
+    // Warga boleh mengirim bukti miliknya sendiri dengan status PENDING —
+    // tidak bisa menyatakan sendiri bahwa pengajuannya APPROVED.
+    // Penilaian hanya dilakukan mesin lewat Admin SDK.
+    match /participation_requests/{reqId} {
+      allow read: if isOperator()
+        || (login() && resource.data.userId == request.auth.uid);
+      allow create: if login()
+        && request.resource.data.userId == request.auth.uid
+        && request.resource.data.status == 'PENDING'
+        && request.resource.data.photosBase64 is list;
+      allow update, delete: if false;
+    }
+
+    // ---------- sesi Jam Emas ----------
+    // Dibaca aplikasi mobile untuk menyalakan tombol kirim bukti saat ACTIVE.
+    // Hanya Admin BUMDes yang boleh menjadwalkan; cron memakai Admin SDK.
+    match /load_shift_sessions/{id} {
+      allow read: if login();
+      allow write: if isAdminBumdes();
+    }
+
+    // ---------- katalog hadiah ----------
+    // Warga perlu membacanya untuk menampilkan pilihan di aplikasi.
+    match /reward_catalog/{id} {
+      allow read: if login();
+      allow write: if isAdminBumdes();
+    }
+
+    // ---------- stok kode voucher ----------
+    // Aplikasi mobile menjalankan transaksi penukaran sendiri, jadi perlu
+    // membaca stok dan menandai kode terpakai. Dibatasi:
+    //   - hanya boleh mengubah kode yang MASIH tersedia (is_used == false)
+    //   - hanya boleh menandainya terpakai atas nama diri sendiri
+    //   - tidak bisa membebaskan kembali kode yang sudah terpakai
+    // Penambahan/penghapusan stok tetap hanya Admin BUMDes.
+    match /voucher_stock/{id} {
+      allow read: if login();
+      allow create, delete: if isAdminBumdes();
+      allow update: if isAdminBumdes()
+        || (
+          login()
+          && resource.data.is_used == false
+          && request.resource.data.is_used == true
+          && request.resource.data.used_by_uid == request.auth.uid
+          && request.resource.data.reward_id == resource.data.reward_id
+          && request.resource.data.code == resource.data.code
+        );
+    }
+
+    // ---------- riwayat penukaran ----------
+    // Mobile mencatat transaksinya sendiri (hanya atas nama diri sendiri).
+    // Catatan tidak boleh diubah atau dihapus setelah dibuat — ini bukti
+    // transaksi untuk laporan BUMDes.
+    match /redemption_history/{id} {
+      allow read: if isOperator()
+        || (login() && resource.data.user_id == request.auth.uid);
+      allow create: if login()
+        && request.resource.data.user_id == request.auth.uid;
+      allow update, delete: if false;
+    }
+
+    // ---------- riwayat broadcast ----------
+    // Boleh dibaca semua yang login; penulisan hanya lewat Admin SDK (/api/broadcast).
+    match /broadcast_notifications/{doc} {
+      allow read: if login();
+      allow write: if false;
+    }
+
+    // ---------- pengaturan ----------
+    match /settings/{doc} {
+      allow read: if login();
+      allow write: if isAdminBumdes();
+    }
+
+    // ---------- tolak sisanya ----------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
