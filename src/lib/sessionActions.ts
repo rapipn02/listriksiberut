@@ -1,4 +1,3 @@
-// Aksi kelola sesi Jam Emas (load_shift_sessions) dari dashboard operator.
 import {
   addDoc,
   collection,
@@ -15,12 +14,10 @@ const BULAN = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 
-/** "31 Juli 2026" — format tanggal yang dipakai aplikasi mobile. */
 export function formatTanggalId(d: Date): string {
   return `${d.getDate()} ${BULAN[d.getMonth()]} ${d.getFullYear()}`;
 }
 
-/** Gabungkan tanggal + "HH:MM" jadi Date. */
 export function gabungWaktu(tanggal: Date, jam: string): Date {
   const [h, m] = jam.split(":").map(Number);
   const out = new Date(tanggal);
@@ -30,8 +27,8 @@ export function gabungWaktu(tanggal: Date, jam: string): Date {
 
 export interface SesiBaru {
   tanggal: Date;
-  startTime: string; // "10:00"
-  endTime: string; // "15:00"
+  startTime: string;
+  endTime: string;
   targetSavingKwh: number;
   capacityKw: number;
   poinPerPartisipasi: number;
@@ -46,8 +43,7 @@ export async function buatSesi(s: SesiBaru, dibuatOleh: string) {
     date: formatTanggalId(s.tanggal),
     startTime: s.startTime,
     endTime: s.endTime,
-    // Status awal dihitung dari waktu, supaya sesi yang dibuat saat jamnya
-    // sudah berjalan langsung ACTIVE tanpa menunggu cron.
+
     status:
       sekarang >= endAt.getTime()
         ? "ENDED"
@@ -65,7 +61,6 @@ export async function buatSesi(s: SesiBaru, dibuatOleh: string) {
   });
 }
 
-/** Paksa ubah status — dipakai operator saat demo atau koreksi. */
 export async function ubahStatusSesi(id: string, status: SessionStatus) {
   await updateDoc(doc(db, "load_shift_sessions", id), { status });
 }

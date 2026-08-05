@@ -11,7 +11,7 @@ import { onAuthStateChanged, signOut } from "firebase/auth";
 import { auth, isFirebaseConfigured } from "@/lib/firebase";
 import { fetchOperator, loginOperator } from "@/lib/auth";
 import type { OperatorRole } from "@/lib/types";
-  
+
 export interface Session {
   uid: string;
   email: string;
@@ -38,9 +38,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    // Satu-satunya sumber sesi: Firebase Auth.
-    // Tidak ada jalur "demo" tanpa autentikasi — dulu jalur itu membuat
-    // dashboard tampil kosong karena Firestore menolak pembacaannya.
     const unsub = onAuthStateChanged(auth, async (user) => {
       if (user) {
         const op = await fetchOperator(user.uid);

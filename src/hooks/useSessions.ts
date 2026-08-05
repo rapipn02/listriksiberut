@@ -5,7 +5,6 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 import { db, isFirebaseConfigured } from "@/lib/firebase";
 import type { LoadShiftSession } from "@/lib/types";
 
-/** Sesi Jam Emas — koleksi bersama dengan aplikasi mobile. */
 export function useSessions(maks = 30) {
   const [items, setItems] = useState<LoadShiftSession[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);

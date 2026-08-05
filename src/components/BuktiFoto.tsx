@@ -8,21 +8,13 @@ import { ChevronLeft, ChevronRight, ImageOff, X } from "@/components/icons";
    bukan aset statis; next/image tidak bisa mengoptimalkan data URL. */
 
 interface Props {
-  /** Isi field `photosBase64` dari dokumen participation_requests. */
   foto?: string[];
-  /** Nama warga — dipakai untuk teks alternatif dan judul lightbox. */
   nama: string;
 }
 
-/**
- * Semua foto bukti ditampilkan sebagai thumbnail; klik membuka pratinjau
- * ukuran penuh. Satu pengajuan bisa berisi beberapa foto, jadi tidak ada
- * yang disembunyikan — operator perlu melihat semuanya untuk menilai.
- */
 export function BuktiFoto({ foto, nama }: Props) {
   const daftar = useMemo(() => foto ?? [], [foto]);
-  // Base64 yang tidak dikenali disaring lebih dulu supaya tidak jadi
-  // gambar patah tanpa keterangan.
+
   const url = useMemo(() => daftar.map((f) => dataUrlFoto(f)), [daftar]);
   const [rusak, setRusak] = useState<Set<number>>(new Set());
   const [buka, setBuka] = useState<number | null>(null);

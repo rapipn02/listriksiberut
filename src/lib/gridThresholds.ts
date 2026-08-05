@@ -1,16 +1,10 @@
-// Penentu kapan sistem harus mengirim imbauan otomatis.
-// Fungsi murni tanpa Firestore/tanggal sistem supaya mudah diuji.
-
-/** Ambang beban terhadap kapasitas PLTD yang memicu peringatan. */
 export const AMBANG_BEBAN = 0.9;
 
-/** Berapa jam ke depan yang dipantau untuk memicu peringatan dini. */
 export const HORIZON_JAM = 3;
 
 export interface TitikBeban {
-  /** ISO string atau label jam — hanya untuk pesan, tidak dipakai berhitung. */
   jam: string;
-  /** Jam ke berapa dari sekarang (0 = jam berjalan). */
+
   offsetJam: number;
   bebanKw: number;
   pltsKw: number;
@@ -20,19 +14,12 @@ export interface TitikBeban {
 export interface HasilAmbang {
   perluKirim: boolean;
   alasan: string;
-  /** Titik yang memicu; null bila tidak ada. */
+
   pemicu: TitikBeban | null;
-  /** Rasio beban tertinggi terhadap kapasitas PLTD dalam horizon. */
+
   rasioTertinggi: number;
 }
 
-/**
- * Tentukan apakah perlu mengirim imbauan otomatis.
- *
- * Memicu bila dalam HORIZON_JAM ke depan ada titik yang:
- *   - rasio beban terhadap kapasitas PLTD >= AMBANG_BEBAN, ATAU
- *   - ditandai defisit oleh pipeline ML
- */
 export function evaluasiAmbang(
   titik: TitikBeban[],
   kapasitasPltdKw: number,
@@ -62,8 +49,6 @@ export function evaluasiAmbang(
     ...dalamHorizon.map((t) => t.bebanKw / kapasitasPltdKw),
   );
 
-  // Prioritaskan titik paling awal yang memicu — imbauan harus dikirim
-  // sebelum kejadian, bukan pada titik terburuk yang mungkin masih jauh.
   const pemicu =
     dalamHorizon
       .slice()
@@ -92,7 +77,6 @@ export function evaluasiAmbang(
   };
 }
 
-/** Susun pesan imbauan yang dikirim ke warga. */
 export function susunPesanOtomatis(hasil: HasilAmbang): {
   title: string;
   message: string;

@@ -34,8 +34,7 @@ export default function PowerBalanceChart({
         <XAxis
           dataKey="jam"
           tick={{ fontSize: 11, fill: "#94A3B8" }}
-          // minTickGap: Recharts otomatis menyembunyikan label yang berdempetan,
-          // supaya sumbu tetap terbaca di layar HP.
+
           interval="preserveStartEnd"
           minTickGap={36}
           axisLine={false}

@@ -1,4 +1,3 @@
-// Tipe data Firestore (snake_case, sesuai collection yang sudah ada).
 import type { Timestamp } from "firebase/firestore";
 
 export type GridStatus = "NORMAL" | "WARNING" | "ALERT";
@@ -8,9 +7,9 @@ export interface SystemStatus {
   total_plts_capacity_kw: number;
   total_pltd_capacity_kw: number;
   updated_at?: Timestamp;
-  // Metadata tambahan dari pipeline ML (docs/FIRESTORE_CONTRACT.md).
-  current_operating_status?: GridStatus; // status jam pertama -> badge "Kondisi Saat Ini"
-  forecast_risk_status?: GridStatus; // status terburuk 48 jam -> badge "Risiko 48 Jam"
+
+  current_operating_status?: GridStatus;
+  forecast_risk_status?: GridStatus;
   critical_timestamp?: Timestamp;
   minimum_grid_margin_kw?: number;
   status_basis?: string;
@@ -18,7 +17,7 @@ export interface SystemStatus {
 }
 
 export interface PowerForecast {
-  id: string; // doc id: YYYY-MM-DD_HH
+  id: string;
   timestamp: Timestamp;
   predicted_plts_kw: number;
   projected_load_kw: number;
@@ -37,7 +36,7 @@ export interface Operator {
 }
 
 export interface BUMDesReward {
-  id: string; // uid
+  id: string;
   user_id: string;
   nama_warga: string;
   nomor_hp: string;
@@ -55,9 +54,9 @@ export interface RiwayatShift {
 
 export interface RedemptionRequest {
   id: string;
-  uid: string; // BUMDes_rewards doc id pemilik poin
+  uid: string;
   nama_warga: string;
-  hadiah: string; // nama item tukar (voucher, sembako, dst)
+  hadiah: string;
   poin: number;
   status: "pending" | "approved" | "rejected";
 }
@@ -70,36 +69,26 @@ export interface BroadcastNotification {
   timestamp: Timestamp;
 }
 
-// ---------- Otomasi (Fase H) ----------
-
 export type SessionStatus = "UPCOMING" | "ACTIVE" | "ENDED";
 
-/**
- * Sesi Jam Emas (load_shift_sessions).
- *
- * Koleksi bersama dengan aplikasi mobile: tombol "kirim bukti" di HP warga
- * hanya menyala saat ada sesi berstatus ACTIVE. Web yang mengubah statusnya
- * tepat waktu lewat cron, dan menjadi acuan mesin verifikasi menilai foto.
- */
 export interface LoadShiftSession {
   id: string;
-  date: string; // "31 Juli 2026"
-  startTime: string; // "10:00"
-  endTime: string; // "15:00"
+  date: string;
+  startTime: string;
+  endTime: string;
   status: SessionStatus;
   targetSavingKwh: number;
   capacityKw: number;
   currentLoadKw: number;
   participantCount: number;
-  // Tambahan web (tidak dipakai mobile):
+
   poin_per_partisipasi?: number;
   dibuat_oleh?: string;
-  /** Waktu mulai & selesai sesungguhnya — dipakai mesin verifikasi. */
+
   startAt?: Timestamp;
   endAt?: Timestamp;
 }
 
-/** Profil warga — ditulis aplikasi mobile saat mendaftar. */
 export interface AppUser {
   uid: string;
   nama: string;
@@ -110,23 +99,15 @@ export interface AppUser {
 
 export type ParticipationStatus = "PENDING" | "APPROVED" | "REJECTED";
 
-/**
- * Bukti foto warga yang menggeser jam pemakaian listrik.
- * Nama field mengikuti skema aplikasi mobile (camelCase).
- *
- * Catatan: photosBase64 menyimpan foto langsung di dokumen Firestore, yang
- * dibatasi 1 MiB per dokumen. Foto wajib dikompres di sisi mobile — lihat
- * catatan di context.md.
- */
 export interface ParticipationRequest {
   id: string;
   userId: string;
   userName: string;
   timestamp: Timestamp;
-  goldenHourRange?: string; // "10:00-14:00" — jendela yang diklaim warga
+  goldenHourRange?: string;
   photosBase64?: string[];
   status: ParticipationStatus;
-  // Diisi mesin verifikasi:
+
   windowId?: string;
   poinDiberikan?: number;
   verifiedAt?: Timestamp;
@@ -141,12 +122,11 @@ export interface RewardCatalogItem {
   pointsRequired: number;
   iconType: RewardIcon;
   type: "DIGITAL";
-  // Tambahan web (opsional bagi mobile):
+
   deskripsi?: string;
   aktif?: boolean;
 }
 
-/** Stok kode token. Koleksi: voucher_stock */
 export interface VoucherStock {
   id: string;
   reward_id: string;

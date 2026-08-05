@@ -50,7 +50,6 @@ describe("dataUrlFoto", () => {
 
 describe("ukuranKb", () => {
   it("menghitung dari panjang Base64, mengabaikan padding", () => {
-    // 1024 byte → 1 KB (1368 karakter Base64 dengan padding)
     const b64 = Buffer.alloc(1024).toString("base64");
     expect(ukuranKb(b64)).toBe(1);
   });

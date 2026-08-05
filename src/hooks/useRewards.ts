@@ -46,7 +46,7 @@ export function useRewards() {
 
   async function addReward(nama: string, nomorHp: string) {
     if (isFirebaseConfigured) {
-      await addWarga(nama, nomorHp); // onSnapshot otomatis refresh daftar
+      await addWarga(nama, nomorHp);
     } else {
       setRewards((prev) => [
         ...prev,
@@ -65,7 +65,6 @@ export function useRewards() {
   return { rewards, loading, error, addReward };
 }
 
-/** Katalog hadiah yang bisa ditukar warga. */
 export function useRewardCatalog() {
   const [items, setItems] = useState<RewardCatalogItem[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);
@@ -91,7 +90,6 @@ export function useRewardCatalog() {
   return { items, loading };
 }
 
-/** Stok kode voucher — dipakai menghitung sisa per hadiah. */
 export function useVouchers() {
   const [items, setItems] = useState<VoucherStock[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);
@@ -114,7 +112,6 @@ export function useVouchers() {
     return unsub;
   }, []);
 
-  /** { reward_id: { tersedia, terpakai } } */
   const stok = items.reduce<Record<string, { tersedia: number; terpakai: number }>>(
     (acc, v) => {
       const s = (acc[v.reward_id] ??= { tersedia: 0, terpakai: 0 });
@@ -128,7 +125,6 @@ export function useVouchers() {
   return { items, stok, loading };
 }
 
-/** Riwayat penukaran untuk laporan BUMDes. */
 export function useRedemptionHistory(maks = 30) {
   const [items, setItems] = useState<RedemptionHistoryItem[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);

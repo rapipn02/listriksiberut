@@ -1,12 +1,3 @@
-// Penukaran poin jadi kode digital — dipanggil aplikasi mobile warga.
-//
-// Semua dijalankan dalam SATU transaksi Firestore supaya:
-//   - poin tidak bisa dipakai dua kali (permintaan bersamaan)
-//   - satu kode voucher tidak diberikan ke dua warga
-//   - bila ada langkah gagal, poin tidak berkurang dan kode tidak hangus
-//
-// Mobile TIDAK boleh menulis total_poin atau digital_vouchers langsung —
-// kalau boleh, warga bisa menaikkan poinnya sendiri lewat panggilan Firestore.
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdmin } from "@/lib/firebaseAdmin";
 
@@ -20,7 +11,6 @@ export async function POST(request: Request) {
   }
   const { db, app } = admin;
 
-  // --- Identitas pemanggil: wajib ID token Firebase yang sah ---
   const authHeader = request.headers.get("authorization") ?? "";
   const idToken = authHeader.startsWith("Bearer ")
     ? authHeader.slice(7).trim()
@@ -89,9 +79,6 @@ export async function POST(request: Request) {
         );
       }
 
-      // Ambil satu voucher yang masih tersedia.
-      // Query di dalam transaksi ikut terkunci, jadi dua permintaan bersamaan
-      // tidak akan mendapat kode yang sama.
       const voucherQuery = db
         .collection("voucher_stock")
         .where("reward_id", "==", catalogId)
@@ -143,7 +130,6 @@ export async function POST(request: Request) {
   }
 }
 
-/** Kegagalan yang sudah punya pesan siap tampil ke warga. */
 class GagalTukar extends Error {
   constructor(
     public status: number,

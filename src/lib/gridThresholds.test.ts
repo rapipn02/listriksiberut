@@ -23,13 +23,13 @@ describe("evaluasiAmbang", () => {
   });
 
   it("memicu tepat di 90% kapasitas", () => {
-    const h = evaluasiAmbang([t(0, 45)], PLTD); // 45/50 = 0.9
+    const h = evaluasiAmbang([t(0, 45)], PLTD);
     expect(h.perluKirim).toBe(true);
     expect(h.alasan).toContain("90%");
   });
 
   it("tidak memicu di 89%", () => {
-    const h = evaluasiAmbang([t(0, 44.5)], PLTD); // 0.89
+    const h = evaluasiAmbang([t(0, 44.5)], PLTD);
     expect(h.perluKirim).toBe(false);
   });
 

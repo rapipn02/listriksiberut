@@ -1,18 +1,16 @@
-// Data dummy dipakai saat Firebase belum dikonfigurasi (mode demo) —
-// nilai cocok dengan mockup yang sudah disetujui.
 import type { GridStatus } from "./types";
 
 export interface ForecastPoint {
-  jam: string; // "13:00"
-  beban: number; // projected_load_kw
-  plts: number; // predicted_plts_kw
+  jam: string;
+  beban: number;
+  plts: number;
   deficit: boolean;
 }
 
 export interface WeatherNow {
-  cloud: number; // %
-  ghi: number; // W/m2
-  suhu: number; // C
+  cloud: number;
+  ghi: number;
+  suhu: number;
 }
 
 export const demoStatus = {
@@ -23,7 +21,6 @@ export const demoStatus = {
 
 export const demoWeather: WeatherNow = { cloud: 75, ghi: 320, suhu: 29 };
 
-// Kurva 24 jam: PLTS puncak siang, beban puncak pagi & malam.
 export function buildDemoForecasts(): ForecastPoint[] {
   const out: ForecastPoint[] = [];
   for (let h = 0; h < 24; h++) {

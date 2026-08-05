@@ -1,14 +1,3 @@
-// Siklus hidup sesi Jam Emas: UPCOMING → ACTIVE → ENDED.
-//
-// Penting bagi mobile: tombol "kirim bukti" di HP warga hanya menyala ketika
-// ada sesi berstatus ACTIVE. Kalau route ini tidak jalan, warga tidak akan
-// pernah bisa mengirim bukti.
-//
-// Sekaligus menyegarkan angka yang ditampilkan aplikasi:
-//   - currentLoadKw    dari prakiraan ML jam berjalan
-//   - participantCount dari partisipasi yang sudah disetujui
-//
-// Dipanggil cron tiap 5 menit.
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdmin } from "@/lib/firebaseAdmin";
 import { cronDiizinkan, tolakCron } from "@/lib/cronAuth";
@@ -28,7 +17,6 @@ export async function POST(request: Request) {
   const sekarang = Date.now();
 
   try {
-    // Beban jam berjalan dari prakiraan ML (dipakai semua sesi aktif).
     const fcSnap = await db
       .collection("power_forecasts")
       .where("timestamp", ">=", Timestamp.fromMillis(sekarang - 3600_000))
@@ -39,7 +27,6 @@ export async function POST(request: Request) {
       ? 0
       : Math.round((fcSnap.docs[0].data().projected_load_kw ?? 0) * 10) / 10;
 
-    // Jumlah partisipasi disetujui per sesi.
     const partisipasiSnap = await db
       .collection("participation_requests")
       .where("status", "==", "APPROVED")
@@ -59,7 +46,7 @@ export async function POST(request: Request) {
       const v = d.data();
       const mulai = v.startAt?.toMillis?.();
       const selesai = v.endAt?.toMillis?.();
-      if (!mulai || !selesai) continue; // sesi tanpa waktu — lewati
+      if (!mulai || !selesai) continue;
 
       const statusSeharusnya =
         sekarang >= selesai ? "ENDED" : sekarang >= mulai ? "ACTIVE" : "UPCOMING";
@@ -73,7 +60,7 @@ export async function POST(request: Request) {
         if (statusSeharusnya === "ENDED") jadiSelesai++;
       }
       if (v.participantCount !== peserta) perubahan.participantCount = peserta;
-      // Beban hanya relevan selagi sesi berjalan.
+
       if (statusSeharusnya === "ACTIVE" && v.currentLoadKw !== bebanSekarang) {
         perubahan.currentLoadKw = bebanSekarang;
       }

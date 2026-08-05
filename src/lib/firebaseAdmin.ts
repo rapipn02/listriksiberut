@@ -1,9 +1,3 @@
-// Firebase Admin SDK — SERVER-SIDE SAJA (Route Handler).
-// Jangan pernah import dari client component.
-//
-// Kredensial dibaca dari env FIREBASE_SERVICE_ACCOUNT_JSON (isi JSON satu baris),
-// dengan fallback ke file serviceAccountKey.json saat development lokal.
-// Pola env dipakai agar build standalone di VPS tidak perlu menyertakan file kunci.
 import { readFileSync, existsSync } from "node:fs";
 import { getApps, initializeApp, cert, type App } from "firebase-admin/app";
 import { getFirestore, type Firestore } from "firebase-admin/firestore";
@@ -25,7 +19,7 @@ function loadServiceAccount(): ServiceAccount | null {
       return null;
     }
   }
-  // Fallback development: file lokal (tidak ikut ke repo, ada di .gitignore).
+
   const path = process.env.GOOGLE_APPLICATION_CREDENTIALS ?? "./serviceAccountKey.json";
   if (existsSync(path)) {
     try {
@@ -40,7 +34,6 @@ function loadServiceAccount(): ServiceAccount | null {
 
 let cached: { app: App; db: Firestore; messaging: Messaging } | null = null;
 
-/** Kembalikan handle admin, atau null kalau kredensial belum dikonfigurasi (mode demo). */
 export function getAdmin() {
   if (cached) return cached;
 

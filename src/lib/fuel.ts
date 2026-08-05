@@ -1,10 +1,8 @@
-// Fungsi murni hitung penghematan BBM solar dari load shifting.
-// Konstanta domain — konfirmasi angka final ke tim (TODO).
 export const FUEL = {
-  hargaSolarPerLiter: 15_000, // Rp/L
-  co2PerLiter: 2.68, // kg CO2 per liter solar
-  co2SerapPohonPerHari: 21, // kg CO2 setara serapan 1 pohon (pendekatan, per basis harian mockup)
-  literPenuhPerHari: 650, // liter/hari dihemat saat kepatuhan 100% (50% => 325 L)
+  hargaSolarPerLiter: 15_000,
+  co2PerLiter: 2.68,
+  co2SerapPohonPerHari: 21,
+  literPenuhPerHari: 650,
 };
 
 export interface HasilHemat {
@@ -17,7 +15,6 @@ export interface HasilHemat {
   pohon: number;
 }
 
-/** kepatuhanPersen: 0..100 */
 export function hitungHemat(kepatuhanPersen: number): HasilHemat {
   const p = Math.max(0, Math.min(100, kepatuhanPersen));
   const liter = Math.round(FUEL.literPenuhPerHari * (p / 100));

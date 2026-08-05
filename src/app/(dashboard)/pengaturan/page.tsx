@@ -48,7 +48,7 @@ export default function PengaturanPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {/* profil */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold mb-4">Profil Operator</h3>
           <dl className="space-y-3 text-sm">
@@ -80,7 +80,6 @@ export default function PengaturanPage() {
           </p>
         </div>
 
-        {/* status sistem */}
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold mb-4">Status Sistem</h3>
           <dl className="space-y-3 text-sm">
@@ -134,7 +133,6 @@ export default function PengaturanPage() {
           )}
         </div>
 
-        {/* parameter kalkulator */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 xl:col-span-2">
           <h3 className="font-semibold">Parameter Perhitungan BBM</h3>
           <p className="text-xs text-slate-500 mb-4">

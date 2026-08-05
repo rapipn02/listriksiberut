@@ -10,7 +10,6 @@ import { totalUkuranKb } from "@/lib/photo";
 import { Refresh } from "@/components/icons";
 import type { ParticipationStatus } from "@/lib/types";
 
-/** Poin yang diberikan saat operator menyetujui manual. */
 const POIN_MANUAL = 25;
 
 const STATUS_META: Record<
@@ -135,14 +134,12 @@ export default function VerifikasiPage() {
         </p>
       )}
 
-      {/* ringkasan */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <Ringkas label="Menunggu Analisis" nilai={menunggu} warna="text-amber-600" />
         <Ringkas label="Poin Diterima" nilai={disetujui} warna="text-brand-600" />
         <Ringkas label="Ditolak" nilai={ditolak} warna="text-red-600" />
       </div>
 
-      {/* cara kerja */}
       <div className="rounded-xl bg-white border border-slate-200 p-5 mb-6">
         <h3 className="font-semibold mb-2">Cara mesin menilai</h3>
         <ol className="text-sm text-slate-600 space-y-1 list-decimal list-inside">
@@ -157,7 +154,6 @@ export default function VerifikasiPage() {
         </p>
       </div>
 
-      {/* daftar */}
       <div className="rounded-xl bg-white border border-slate-200 p-5 min-w-0">
         <h3 className="font-semibold mb-4">Riwayat Pengajuan</h3>
 
@@ -174,8 +170,7 @@ export default function VerifikasiPage() {
                   key={p.id}
                   className="flex gap-3 border border-slate-200 rounded-xl p-3"
                 >
-                  {/* Mobile mengirim foto sebagai Base64 di dalam dokumen.
-                      Semua foto ditampilkan; klik untuk melihat ukuran penuh. */}
+
                   <BuktiFoto foto={p.photosBase64} nama={p.userName} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-start justify-between gap-2 flex-wrap">
@@ -200,8 +195,7 @@ export default function VerifikasiPage() {
                         {p.verificationReason}
                       </p>
                     )}
-                    {/* Operator boleh menimpa keputusan mesin — berguna kalau
-                        mesin salah menilai, atau saat sesi terlewat. */}
+
                     <div className="flex gap-2 mt-2">
                       {p.status !== "APPROVED" && (
                         <button

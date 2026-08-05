@@ -1,10 +1,3 @@
-/**
- * Seed data dummy ke Firestore + buat akun operator.
- * Butuh service account: set GOOGLE_APPLICATION_CREDENTIALS di .env.local
- * (Firebase Console > Project settings > Service accounts > Generate new private key).
- *
- * Jalankan:  npm run seed
- */
 import { config } from "dotenv";
 import { readFileSync, existsSync } from "node:fs";
 import { initializeApp, cert } from "firebase-admin/app";
@@ -24,7 +17,6 @@ if (!existsSync(keyPath)) {
   process.exit(1);
 }
 
-// Guard: menimpa power_forecasts berisiko menghapus data pipeline ML.
 const FORCE_FORECASTS = process.argv.includes("--force-forecasts");
 
 const serviceAccount = JSON.parse(readFileSync(keyPath, "utf8"));
@@ -64,8 +56,6 @@ async function ensureOperator(op: (typeof OPERATORS)[number]) {
   console.log(`  operator ${op.email} (${op.role}) -> ${uid}`);
 }
 
-// Skala realistis terhadap kapasitas asli: PLTS 75 kWp nameplate, PLTD 50 kW.
-// Puncak surya ~55 kW (efisiensi nyata < nameplate), beban 30-60 kW untuk 327 rumah tangga.
 function buildForecasts() {
   const now = new Date();
   const docs: { id: string; data: Record<string, unknown> }[] = [];
@@ -106,17 +96,12 @@ async function main() {
   for (const op of OPERATORS) await ensureOperator(op);
 
   console.log("Seeding system_status…");
-  // Kapasitas asli dari tim ML (docs/FIRESTORE_CONTRACT.md): PLTS 75 kWp, PLTD 50 kW.
-  //
-  // merge: true — WAJIB. Dokumen ini milik pipeline ML dan berisi metadata
-  // mereka (model_version, critical_timestamp, minimum_grid_margin_kw).
-  // Tanpa merge, seed akan menghapusnya dan mobile kehilangan model_version.
+
   const statusSnap = await db.collection("system_status").doc("siberut_grid").get();
   const adaDataML = Boolean(statusSnap.data()?.model_version);
   await db.collection("system_status").doc("siberut_grid").set(
     adaDataML
-      ? // Sudah ada data ML — jangan sentuh status/kapasitasnya sama sekali.
-        { updated_at: statusSnap.data()?.updated_at ?? Timestamp.now() }
+      ? { updated_at: statusSnap.data()?.updated_at ?? Timestamp.now() }
       : {
           current_status: "ALERT",
           current_operating_status: "WARNING",
@@ -132,9 +117,6 @@ async function main() {
     console.log("  data ML terdeteksi — status & kapasitas dipertahankan.");
   }
 
-  // PENTING: power_forecasts adalah milik pipeline ML.
-  // Kontrak tim ML: "Old forecasts are never deleted" — seed TIDAK BOLEH menghapusnya.
-  // Hanya isi kalau koleksi masih kosong (belum ada data ML sama sekali).
   const existingForecasts = await db.collection("power_forecasts").limit(1).get();
   if (!existingForecasts.empty && !FORCE_FORECASTS) {
     console.log(
@@ -155,14 +137,12 @@ async function main() {
   }
 
   console.log("Seeding BUMDes_rewards…");
-  // Bersihkan dokumen contoh lama (dari setup awal project, sebelum seed script ada).
+
   await db.collection("BUMDes_rewards").doc("dummy_user_java_maulana").delete().catch(() => {});
   for (const w of WARGA) {
     await db.collection("BUMDes_rewards").doc(w.user_id).set(w);
   }
 
-  // redemption_requests dari desain lama (approve manual) sudah tidak dipakai —
-  // penukaran kini instan lewat /api/redeem.
   await clearCollection("redemption_requests");
 
   console.log("Seeding settings…");
@@ -220,7 +200,7 @@ async function main() {
 
   console.log("Seeding voucher_stock (kode dummy)…");
   await clearCollection("voucher_stock");
-  await clearCollection("digital_vouchers"); // nama koleksi lama, tidak dipakai lagi
+  await clearCollection("digital_vouchers");
   const voucherBatch = db.batch();
   const PREFIKS: Record<string, string> = {
     token_listrik_20rb: "PLN",
@@ -242,7 +222,7 @@ async function main() {
   await voucherBatch.commit();
 
   console.log("Seeding load_shift_sessions + participation_requests (demo)…");
-  await clearCollection("broadcast_windows"); // koleksi lama, tidak dipakai lagi
+  await clearCollection("broadcast_windows");
   await clearCollection("load_shift_sessions");
   await clearCollection("participation_requests");
 
@@ -263,8 +243,6 @@ async function main() {
     return `${d.getDate()} ${BULAN_ID[d.getMonth()]} ${d.getFullYear()}`;
   };
 
-  // Sesi yang SEDANG BERJALAN — tombol kirim bukti di HP warga menyala,
-  // sekaligus jadi acuan mesin verifikasi menilai foto demo di bawah.
   const mulaiMs = sekarang - 2 * 3600_000;
   const selesaiMs = sekarang + 2 * 3600_000;
   const sesiRef = db.collection("load_shift_sessions").doc();
@@ -283,7 +261,6 @@ async function main() {
     endAt: Timestamp.fromMillis(selesaiMs),
   });
 
-  // Sesi besok siang — contoh status UPCOMING.
   const besokMulai = sekarang + 20 * 3600_000;
   const besokSelesai = sekarang + 25 * 3600_000;
   await db.collection("load_shift_sessions").add({
@@ -301,16 +278,13 @@ async function main() {
     endAt: Timestamp.fromMillis(besokSelesai),
   });
 
-  // Satu pengajuan bisa berisi beberapa foto — mobile mengirimnya sebagai
-  // array Base64. Foto contoh dibuat 480×320 (bukan 1×1 piksel seperti dulu)
-  // supaya halaman Verifikasi benar-benar memperlihatkan gambar.
   const PENGAJUAN = [
-    // Dalam jendela → seharusnya DISETUJUI
+
     { userId: "warga_java", userName: "Java Maulana", offsetMenit: -60, foto: 3 },
     { userId: "warga_siti", userName: "Siti Rahma", offsetMenit: -45, foto: 2 },
-    // Dobel dari warga sama di jendela sama → seharusnya DITOLAK
+
     { userId: "warga_java", userName: "Java Maulana", offsetMenit: -20, foto: 1 },
-    // Jauh di luar jendela → seharusnya DITOLAK
+
     { userId: "warga_rudi", userName: "Rudi Hartono", offsetMenit: -600, foto: 4 },
   ];
   for (const p of PENGAJUAN) {

@@ -27,7 +27,6 @@ const STATUS_META: Record<SessionStatus, { label: string; pill: string }> = {
   },
 };
 
-/** yyyy-mm-dd hari ini, untuk nilai awal input tanggal. */
 function hariIni() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
@@ -140,7 +139,6 @@ export default function SesiPage() {
         </p>
       )}
 
-      {/* status ringkas */}
       <div
         className={`rounded-xl p-5 mb-6 ${
           aktif.length > 0
@@ -172,7 +170,7 @@ export default function SesiPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* form */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5 min-w-0">
           <h3 className="font-semibold mb-4">Jadwalkan Sesi</h3>
           <div className="space-y-3 text-sm">
@@ -242,7 +240,6 @@ export default function SesiPage() {
           </p>
         </div>
 
-        {/* daftar */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 xl:col-span-2 min-w-0">
           <h3 className="font-semibold mb-4">Daftar Sesi</h3>
           {items.length === 0 ? (

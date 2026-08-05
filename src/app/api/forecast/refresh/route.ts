@@ -1,7 +1,4 @@
-// Picu prediksi ulang di layanan ML (FastAPI), lalu ML menulis hasilnya ke Firestore.
-// Dipanggil server-side saja: ISLANDGRID_API_KEY tidak boleh sampai ke browser
-// (peringatan eksplisit di docs/FIRESTORE_CONTRACT.md tim ML).
-const TIMEOUT_MS = 30_000; // jalankan model bisa lambat
+const TIMEOUT_MS = 30_000;
 
 export async function POST() {
   const base = process.env.ISLANDGRID_API_BASE_URL;

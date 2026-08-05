@@ -29,8 +29,7 @@ export function usePowerForecasts() {
 
   useEffect(() => {
     if (!isFirebaseConfigured) return;
-    // Jendela 48 jam sesuai kontrak tim ML: koleksi TIDAK PERNAH dibersihkan,
-    // jadi wajib difilter dua sisi supaya dokumen lama tidak ikut tampil.
+
     const now = Date.now();
     const q = query(
       collection(db, "power_forecasts"),
@@ -62,7 +61,7 @@ export function usePowerForecasts() {
           setWeather({
             cloud: cur.cloud_cover_percent,
             ghi: cur.ghi_radiation,
-            suhu: 29, // schema tanpa suhu — default
+            suhu: 29,
           });
         }
         setLoading(false);

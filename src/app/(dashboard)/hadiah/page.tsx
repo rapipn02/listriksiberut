@@ -127,7 +127,7 @@ export default function HadiahPage() {
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* katalog */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5 xl:col-span-2 min-w-0">
           <h3 className="font-semibold mb-4">Katalog Hadiah</h3>
           {katalog.length === 0 ? (
@@ -188,7 +188,6 @@ export default function HadiahPage() {
           )}
         </div>
 
-        {/* input stok */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 min-w-0">
           <h3 className="font-semibold">Tambah Kode Voucher</h3>
           <p className="text-xs text-slate-500 mb-4">
@@ -230,7 +229,6 @@ export default function HadiahPage() {
         </div>
       </div>
 
-      {/* riwayat penukaran */}
       <div className="rounded-xl bg-white border border-slate-200 p-5 mt-4 min-w-0">
         <h3 className="font-semibold mb-4">Riwayat Penukaran</h3>
         {riwayat.length === 0 ? (

@@ -1,4 +1,3 @@
-// Login operator + cek allowlist Firestore (collection operators/{uid}).
 import { signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
 import { auth, db } from "./firebase";
@@ -9,7 +8,6 @@ export async function fetchOperator(uid: string): Promise<Operator | null> {
   return snap.exists() ? (snap.data() as Operator) : null;
 }
 
-/** Login + validasi allowlist. Kalau bukan operator aktif -> sign out + error. */
 export async function loginOperator(
   email: string,
   password: string,

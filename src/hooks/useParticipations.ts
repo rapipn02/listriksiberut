@@ -5,7 +5,6 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 import { db, isFirebaseConfigured } from "@/lib/firebase";
 import type { ParticipationRequest } from "@/lib/types";
 
-/** Pengajuan foto bukti warga, terbaru dulu. */
 export function useParticipations(maks = 50) {
   const [items, setItems] = useState<ParticipationRequest[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);

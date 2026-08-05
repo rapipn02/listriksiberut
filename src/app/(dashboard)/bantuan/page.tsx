@@ -45,7 +45,6 @@ export default function BantuanPage() {
         </p>
       </div>
 
-      {/* konsep */}
       <div className="rounded-xl p-5 text-white bg-gradient-to-br from-slate-800 to-brand-900 mb-4">
         <h2 className="text-xl font-bold">Apa itu load shifting?</h2>
         <p className="text-sm text-slate-200 mt-2 leading-relaxed">
@@ -63,7 +62,6 @@ export default function BantuanPage() {
         </p>
       </div>
 
-      {/* langkah */}
       <div className="rounded-xl bg-white border border-slate-200 p-5 mb-4">
         <h3 className="font-semibold mb-4">Alur kerja harian operator</h3>
         <ol className="space-y-4">
@@ -84,7 +82,7 @@ export default function BantuanPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {/* arti status */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold mb-3">Arti warna status</h3>
           <div className="space-y-3 text-sm">
@@ -106,7 +104,6 @@ export default function BantuanPage() {
           </div>
         </div>
 
-        {/* faq */}
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold mb-3">Pertanyaan umum</h3>
           <div className="space-y-3 text-sm">

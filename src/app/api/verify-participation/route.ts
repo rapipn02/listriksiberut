@@ -1,11 +1,3 @@
-// Automated Verification Engine.
-//
-// Ambil semua pengajuan berstatus WAITING_AI, jalankan mesin aturan
-// (src/lib/verification.ts), lalu tulis hasilnya. Poin ditambahkan secara
-// transaksional supaya tidak ada penambahan ganda bila route terpanggil
-// bersamaan oleh cron dan tombol demo.
-//
-// Dipanggil cron tiap 5 menit, atau lewat tombol di halaman Verifikasi.
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { getAdmin } from "@/lib/firebaseAdmin";
 import { cronDiizinkan, tolakCron } from "@/lib/cronAuth";
@@ -16,11 +8,9 @@ import {
   type PengajuanPartisipasi,
 } from "@/lib/verification";
 
-/** Batasi jumlah per jalan supaya tidak melebihi batas waktu route. */
 const MAKS_PER_JALAN = 50;
 
 export async function POST(request: Request) {
-  // Tombol di dashboard mengirim header ini; cron mengirim rahasia.
   const dariDashboard = request.headers.get("x-from-dashboard") === "1";
   if (!dariDashboard && !cronDiizinkan(request)) return tolakCron();
 
@@ -51,7 +41,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Sesi Jam Emas yang masih relevan (belum lewat 24 jam).
     const sesiSnap = await db
       .collection("load_shift_sessions")
       .where("endAt", ">", Timestamp.fromMillis(sekarang - 24 * 3600_000))
@@ -68,7 +57,6 @@ export async function POST(request: Request) {
         };
       });
 
-    // Klaim yang sudah disetujui, untuk mencegah poin ganda per jendela.
     const disetujuiSnap = await db
       .collection("participation_requests")
       .where("status", "==", "APPROVED")
@@ -96,8 +84,6 @@ export async function POST(request: Request) {
       const reqRef = db.collection("participation_requests").doc(p.id);
 
       if (h.status === "APPROVED") {
-        // Transaksi: tandai disetujui + tambah poin warga sekaligus.
-        // Bila dokumen sudah tidak PENDING (diproses jalan lain), batalkan.
         await db.runTransaction(async (tx) => {
           const kini = await tx.get(reqRef);
           if (!kini.exists || kini.data()?.status !== "PENDING") return;

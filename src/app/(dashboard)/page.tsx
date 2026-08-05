@@ -56,16 +56,14 @@ const STATUS_META: Record<
   },
 };
 
-const STALE_AFTER_MS = 2 * 3600_000; // kontrak ML: scheduler tiap 3 jam
+const STALE_AFTER_MS = 2 * 3600_000;
 
-// Label cuaca mengikuti nilai sebenarnya, bukan teks tetap.
 function cloudTag(persen: number) {
   if (persen >= 70) return { tag: "Tinggi", tagClass: "text-red-600 bg-red-50" };
   if (persen >= 40) return { tag: "Sedang", tagClass: "text-amber-600 bg-amber-50" };
   return { tag: "Rendah", tagClass: "text-brand-700 bg-brand-50" };
 }
 
-// Ambang GHI harian tropis: <200 mendung, 200-500 sedang, >500 cerah.
 function ghiTag(wm2: number) {
   if (wm2 >= 500) return { tag: "Tinggi", tagClass: "text-brand-700 bg-brand-50" };
   if (wm2 >= 200) return { tag: "Sedang", tagClass: "text-amber-600 bg-amber-50" };
@@ -79,16 +77,14 @@ export default function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
-  // Kontrak ML memisahkan dua status: kondisi jam ini vs risiko terburuk 48 jam.
   const operating = status?.current_operating_status ?? status?.current_status ?? "NORMAL";
   const risk48 = status?.forecast_risk_status ?? status?.current_status ?? "NORMAL";
   const meta = STATUS_META[operating];
   const riskMeta = STATUS_META[risk48];
 
-  // Kapasitas asli Siberut (PLTS 75 kWp nameplate, PLTD 50 kW).
   const plts = status?.total_plts_capacity_kw ?? 75;
   const pltd = status?.total_pltd_capacity_kw ?? 50;
-  // Data ML berupa desimal panjang — bulatkan untuk tampilan.
+
   const bebanPuncak = points.length
     ? Math.round(Math.max(...points.map((p) => p.beban)))
     : 0;
@@ -119,7 +115,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      {/* header */}
+
       <div className="flex items-start justify-between flex-wrap gap-4 mb-6">
         <div>
           <div className="flex items-center gap-2 flex-wrap">
@@ -171,7 +167,6 @@ export default function DashboardPage() {
         </p>
       )}
 
-      {/* metric row */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div
           className={`rounded-xl p-5 text-white bg-gradient-to-br ${meta.grad} flex flex-col justify-between min-h-[150px]`}
@@ -194,7 +189,6 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Risiko terburuk sepanjang horizon 48 jam (forecast_risk_status) */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 flex flex-col justify-between min-h-[150px]">
           <div className="flex items-center justify-between">
             <span className="text-sm text-slate-500">Risiko 48 Jam</span>
@@ -230,9 +224,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* analitik row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 mb-6">
-        {/* min-w-0: tanpa ini grid item menolak menyusut di bawah lebar grafik (meluber di HP) */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5 xl:col-span-2 min-w-0">
           <div className="flex items-start justify-between flex-wrap gap-2 mb-2">
             <div>
@@ -290,7 +283,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* detail row */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold">Cuaca Satelit</h3>

@@ -21,7 +21,6 @@ export default function DashboardLayout({
     if (!loading && !session) router.replace("/login");
   }, [loading, session, router]);
 
-  // Tutup drawer setiap pindah halaman.
   useEffect(() => setMenuOpen(false), [pathname]);
 
   if (loading || !session) {
@@ -39,7 +38,6 @@ export default function DashboardLayout({
     <div className="min-h-dvh">
       <Sidebar open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-      {/* lapisan gelap di belakang drawer (layar kecil saja) */}
       {menuOpen && (
         <div
           onClick={() => setMenuOpen(false)}

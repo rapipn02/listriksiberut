@@ -21,7 +21,6 @@ export default function KalkulatorPage() {
         </p>
       </div>
 
-      {/* slider */}
       <div className="rounded-xl bg-white border border-slate-200 p-5 flex items-center justify-between flex-wrap gap-4 mb-6">
         <div>
           <h3 className="font-semibold">Tingkat Kepatuhan Warga</h3>
@@ -57,7 +56,6 @@ export default function KalkulatorPage() {
         </div>
       </div>
 
-      {/* hasil */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <ResultCard
           icon="⛽"
@@ -87,7 +85,6 @@ export default function KalkulatorPage() {
           subClass="text-slate-500"
         />
 
-        {/* gauge */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 flex flex-col items-center">
           <p className="text-sm font-medium self-start">Tingkat Kepatuhan</p>
           <div className="relative w-32 h-32 my-1">
@@ -121,7 +118,6 @@ export default function KalkulatorPage() {
         </div>
       </div>
 
-      {/* dampak tahunan + asumsi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4 mt-4">
         <div className="rounded-xl p-5 text-white bg-gradient-to-br from-brand-600 to-brand-800">
           <p className="text-sm text-white/90">Dampak Tahunan</p>

@@ -1,16 +1,12 @@
-// "Jam Emas" = rentang jam berurutan saat prediksi surya melebihi beban (surplus).
-// Dihitung dari data Firestore, bukan dari API ML — tetap jalan walau layanan ML mati.
-// (recommended_green_hours milik ML ada di respons API tapi tidak disync ke Firestore.)
 import type { ForecastPoint } from "./demoData";
 
 export interface GreenWindow {
-  mulai: string; // "10:00"
-  selesai: string; // "14:00"
-  surplusKw: number; // surplus tertinggi dalam rentang
-  jam: number; // panjang rentang (jam)
+  mulai: string;
+  selesai: string;
+  surplusKw: number;
+  jam: number;
 }
 
-/** Cari rentang surplus terpanjang. Kalau tidak ada surplus sama sekali -> null. */
 export function findGreenWindow(points: ForecastPoint[]): GreenWindow | null {
   if (points.length === 0) return null;
 
@@ -37,7 +33,6 @@ export function findGreenWindow(points: ForecastPoint[]): GreenWindow | null {
     surplusKw = Math.max(surplusKw, points[i].plts - points[i].beban);
   }
 
-  // Jam selesai = akhir slot terakhir (slot 13:00 berakhir pukul 14:00).
   const endHour = (Number(points[end].jam.slice(0, 2)) + 1) % 24;
 
   return {

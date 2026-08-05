@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 
-/** Countdown mundur dari detik awal. Cuma tampilan (demo). */
 export default function Countdown({ startSeconds = 3600 + 24 * 60 + 4 }) {
   const [t, setT] = useState(startSeconds);
   useEffect(() => {

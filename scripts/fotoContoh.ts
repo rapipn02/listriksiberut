@@ -1,13 +1,3 @@
-/**
- * Pembuat foto contoh untuk data demo.
- *
- * Sebelumnya seed memakai JPEG 1×1 piksel hitam, sehingga di halaman
- * Verifikasi bukti foto tampak seperti kotak hitam kosong — mudah dikira
- * gambarnya gagal dimuat. Berkas ini menghasilkan PNG sungguhan berukuran
- * wajar dengan pola berbeda tiap foto, jadi navigasi antar foto terlihat.
- *
- * PNG disusun manual (IHDR + IDAT + IEND) agar tidak menambah dependensi.
- */
 import { deflateSync } from "node:zlib";
 
 const TABEL_CRC = (() => {
@@ -35,7 +25,6 @@ function chunk(tipe: string, isi: Buffer): Buffer {
   return Buffer.concat([panjang, badan, crc]);
 }
 
-/** Susun PNG RGB 8-bit dari fungsi warna per piksel. */
 function png(
   lebar: number,
   tinggi: number,
@@ -44,7 +33,7 @@ function png(
   const baris = Buffer.alloc(tinggi * (1 + lebar * 3));
   let o = 0;
   for (let y = 0; y < tinggi; y++) {
-    baris[o++] = 0; // filter: none
+    baris[o++] = 0;
     for (let x = 0; x < lebar; x++) {
       const [r, g, b] = warna(x, y);
       baris[o++] = r;
@@ -55,8 +44,8 @@ function png(
   const ihdr = Buffer.alloc(13);
   ihdr.writeUInt32BE(lebar, 0);
   ihdr.writeUInt32BE(tinggi, 4);
-  ihdr[8] = 8; // kedalaman bit
-  ihdr[9] = 2; // truecolor RGB
+  ihdr[8] = 8;
+  ihdr[9] = 2;
   return Buffer.concat([
     Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]),
     chunk("IHDR", ihdr),
@@ -65,19 +54,13 @@ function png(
   ]);
 }
 
-/** Palet dasar tiap foto agar mudah dibedakan saat berpindah di lightbox. */
 const PALET: Array<[number, number, number]> = [
-  [21, 128, 61], // hijau
-  [30, 64, 175], // biru
-  [180, 83, 9], // jingga
-  [126, 34, 206], // ungu
+  [21, 128, 61],
+  [30, 64, 175],
+  [180, 83, 9],
+  [126, 34, 206],
 ];
 
-/**
- * Foto contoh 480×320: gradien warna + sejumlah kotak putih sebanyak
- * (indeks + 1), sehingga foto ke-3 terlihat jelas berbeda dari foto ke-1.
- * Kembalikan Base64 mentah — sama seperti yang dikirim aplikasi mobile.
- */
 export function fotoContohBase64(indeks: number): string {
   const [pr, pg, pb] = PALET[indeks % PALET.length];
   const L = 480;
@@ -97,7 +80,7 @@ export function fotoContohBase64(indeks: number): string {
       x < kiri + totalLebar &&
       (x - kiri) % (sisi + jarak) < sisi;
     if (dalamKotak) return [255, 255, 255];
-    // Gradien diagonal supaya terlihat seperti foto, bukan bidang polos.
+
     const f = (x / L) * 0.55 + (y / T) * 0.45;
     const campur = (c: number) => Math.round(c * (0.45 + 0.55 * f));
     return [campur(pr), campur(pg), campur(pb)];

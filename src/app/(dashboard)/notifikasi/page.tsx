@@ -79,7 +79,6 @@ export default function NotifikasiPage() {
         </p>
       </div>
 
-      {/* banner jam emas */}
       <div className="rounded-xl bg-white border border-brand-200 p-4 flex items-center gap-4 flex-wrap mb-4">
         <div className="w-10 h-10 rounded-full bg-brand-600 text-white flex items-center justify-center">
           ☀️
@@ -111,7 +110,7 @@ export default function NotifikasiPage() {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        {/* broadcast form */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold">Broadcast Alert</h3>
           <p className="text-xs text-slate-500 mb-4">
@@ -155,7 +154,7 @@ export default function NotifikasiPage() {
         </div>
 
         <div className="space-y-4">
-          {/* poin insentif */}
+
           <div className="rounded-xl bg-white border border-slate-200 p-5">
             <h3 className="font-semibold">Poin Insentif Partisipasi</h3>
             <p className="text-xs text-slate-500 mb-4">
@@ -191,7 +190,6 @@ export default function NotifikasiPage() {
             </div>
           </div>
 
-          {/* riwayat */}
           <div className="rounded-xl bg-white border border-slate-200 p-5">
             <h3 className="font-semibold mb-3">Riwayat Broadcast</h3>
             <div className="space-y-3 text-sm">

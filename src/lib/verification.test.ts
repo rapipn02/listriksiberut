@@ -50,7 +50,7 @@ describe("verifikasi", () => {
       SEKARANG,
     );
     expect(h.status).toBe("APPROVED");
-    expect(h.poin).toBe(25); // jendela w1
+    expect(h.poin).toBe(25);
   });
 
   it("menolak di luar semua jendela", () => {
@@ -132,7 +132,7 @@ describe("verifikasiBanyak", () => {
     );
     const disetujui = hasil.filter((h) => h.hasil.status === "APPROVED");
     expect(disetujui).toHaveLength(1);
-    expect(disetujui[0].pengajuan.id).toBe("a"); // yang paling awal menang
+    expect(disetujui[0].pengajuan.id).toBe("a");
   });
 
   it("menyetujui warga berbeda di jendela sama", () => {

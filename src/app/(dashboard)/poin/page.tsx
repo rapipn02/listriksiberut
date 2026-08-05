@@ -36,7 +36,6 @@ export default function PoinPage() {
   const { items: riwayat } = useRedemptionHistory(10);
   const [toast, setToast] = useState<string | null>(null);
 
-  // Guard: hanya Admin BUMDes.
   if (session && session.role !== "admin_bumdes") {
     return (
       <div className="rounded-xl bg-white border border-slate-200 p-8 text-center">
@@ -84,8 +83,7 @@ export default function PoinPage() {
       )}
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        {/* tabel warga */}
-        {/* min-w-0: tanpa ini grid item melebar mengikuti tabel & meluber di HP */}
+
         <div className="rounded-xl bg-white border border-slate-200 p-5 xl:col-span-2 min-w-0">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-semibold">Peringkat Poin Warga</h3>
@@ -93,7 +91,7 @@ export default function PoinPage() {
               {rewards.length} warga
             </span>
           </div>
-          {/* tabel bisa digeser mendatar di layar sempit */}
+
           <div className="-mx-5 px-5 overflow-x-auto">
           <table className="w-full text-sm min-w-[36rem]">
             <thead>
@@ -148,8 +146,6 @@ export default function PoinPage() {
           </div>
         </div>
 
-        {/* penukaran kini instan lewat aplikasi warga — panel approval manual
-            sudah tidak dipakai, diganti riwayat singkat + tautan ke Hadiah */}
         <div className="rounded-xl bg-white border border-slate-200 p-5 min-w-0">
           <h3 className="font-semibold">Penukaran Terakhir</h3>
           <p className="text-xs text-slate-500 mb-4">

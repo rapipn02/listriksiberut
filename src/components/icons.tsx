@@ -1,4 +1,3 @@
-// Ikon outline (Lucide-style), inline SVG. className atur ukuran/warna.
 type P = { className?: string };
 const base = "none";
 

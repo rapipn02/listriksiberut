@@ -22,7 +22,6 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef<HTMLDivElement>(null);
 
-  // Tutup dropdown saat klik di luar.
   useEffect(() => {
     function onClick(e: MouseEvent) {
       if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
@@ -38,7 +37,7 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
 
   return (
     <header className="sticky top-0 z-20 bg-white/90 backdrop-blur border-b border-slate-200 px-4 sm:px-6 lg:px-8 py-3 sm:py-4 flex items-center gap-3">
-      {/* hamburger — layar kecil saja */}
+
       <button
         onClick={onMenuClick}
         aria-label="Buka menu"
@@ -47,7 +46,6 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
         <Menu className="w-5 h-5" />
       </button>
 
-      {/* pencarian disembunyikan di layar sempit agar tidak menghimpit */}
       <div className="relative flex-1 max-w-md hidden sm:block">
         <Search className="absolute left-3 top-2.5 w-[18px] h-[18px] text-slate-400" />
         <input
@@ -60,7 +58,7 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
       </div>
 
       <div className="ml-auto flex items-center gap-2 sm:gap-3">
-        {/* lonceng: riwayat broadcast terbaru */}
+
         <div className="relative" ref={wrapRef}>
           <button
             onClick={() => setOpen((v) => !v)}
@@ -73,7 +71,6 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
             )}
           </button>
 
-          {/* HP: melebar penuh dengan jarak tepi. Layar besar: menggantung di kanan tombol. */}
           {open && (
             <div className="fixed left-4 right-4 top-16 sm:absolute sm:left-auto sm:right-0 sm:top-auto sm:mt-2 sm:w-80 bg-white border border-slate-200 rounded-xl shadow-lg overflow-hidden z-50">
               <div className="px-4 py-3 border-b border-slate-100">
@@ -128,7 +125,7 @@ export default function Topbar({ onMenuClick }: { onMenuClick?: () => void }) {
           >
             {initials(session.nama)}
           </div>
-          {/* nama & email disembunyikan di HP; peran tetap terlihat */}
+
           <div className="text-sm leading-tight">
             <div className="flex items-center gap-2">
               <span className="font-semibold hidden md:inline">

@@ -1,4 +1,3 @@
-// Aksi tulis Firestore untuk halaman Poin, Notifikasi & Hadiah (Admin BUMDes).
 import {
   addDoc,
   collection,
@@ -12,7 +11,6 @@ import {
 import { db } from "./firebase";
 import type { RewardCatalogItem } from "./types";
 
-/** Setujui penukaran hadiah: kurangi poin warga (dibelanjakan) + tandai approved. */
 export async function approveRedemption(
   requestId: string,
   uid: string,
@@ -26,14 +24,12 @@ export async function approveRedemption(
   });
 }
 
-/** Tolak penukaran: poin warga tidak berkurang. */
 export async function rejectRedemption(requestId: string) {
   await updateDoc(doc(db, "redemption_requests", requestId), {
     status: "rejected",
   });
 }
 
-/** Tambah warga baru ke daftar poin BUMDes. */
 export async function addWarga(nama: string, nomorHp: string) {
   await addDoc(collection(db, "BUMDes_rewards"), {
     nama_warga: nama,
@@ -42,7 +38,6 @@ export async function addWarga(nama: string, nomorHp: string) {
   });
 }
 
-/** Simpan besaran poin insentif per partisipasi. */
 export async function saveInsentifPoin(poin: number) {
   await setDoc(
     doc(db, "settings", "notifikasi"),
@@ -51,7 +46,6 @@ export async function saveInsentifPoin(poin: number) {
   );
 }
 
-/** Nyalakan/matikan pengiriman imbauan otomatis. */
 export async function setAutoBroadcast(aktif: boolean) {
   await setDoc(
     doc(db, "settings", "notifikasi"),
@@ -60,12 +54,6 @@ export async function setAutoBroadcast(aktif: boolean) {
   );
 }
 
-// ---------- Verifikasi manual ----------
-
-/**
- * Operator menimpa keputusan mesin (atau menilai lebih dulu).
- * Poin ditambahkan lewat increment supaya tidak bentrok dengan mesin otomatis.
- */
 export async function putuskanPartisipasi(
   id: string,
   userId: string,
@@ -90,8 +78,6 @@ export async function putuskanPartisipasi(
   }
 }
 
-// ---------- Katalog & stok voucher ----------
-
 export async function tambahHadiah(
   data: Omit<RewardCatalogItem, "id">,
 ): Promise<string> {
@@ -103,10 +89,6 @@ export async function ubahAktifHadiah(id: string, aktif: boolean) {
   await updateDoc(doc(db, "reward_catalog", id), { aktif });
 }
 
-/**
- * Tambah banyak kode voucher sekaligus (satu kode per baris).
- * Mengembalikan jumlah kode yang benar-benar ditulis setelah dibersihkan.
- */
 export async function tambahVoucherMassal(
   rewardId: string,
   teksKode: string,
@@ -121,7 +103,6 @@ export async function tambahVoucherMassal(
   );
   if (kodeList.length === 0) return 0;
 
-  // Firestore membatasi 500 operasi per batch.
   const POTONG = 400;
   for (let i = 0; i < kodeList.length; i += POTONG) {
     const batch = writeBatch(db);

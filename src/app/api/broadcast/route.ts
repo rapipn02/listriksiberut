@@ -1,10 +1,3 @@
-// Broadcast alert ke warga.
-// Web mengirim FCM sendiri (tim ML tidak menyediakan endpoint FCM), memakai
-// firebase-admin server-side. Cloud Functions tidak dipakai karena project
-// masih di Spark plan.
-//
-// Alur: kirim FCM ke topic warga_siberut -> catat ke koleksi broadcast_notifications.
-// Tanpa kredensial admin: lewati FCM, tetap catat, balas mode "mock".
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdmin, FCM_TOPIC } from "@/lib/firebaseAdmin";
 
@@ -27,7 +20,6 @@ export async function POST(request: Request) {
 
   const admin = getAdmin();
   if (!admin) {
-    // Mode demo — kredensial belum dipasang.
     return Response.json({ ok: true, mode: "mock", recipients: FCM_TOPIC });
   }
 

@@ -81,8 +81,7 @@ export default function Sidebar({
         ${open ? "translate-x-0" : "-translate-x-full"}`}
     >
       <div className="px-5 py-5 flex items-center gap-2">
-        {/* Logo colokan listrik; sudah berbentuk lingkaran hijau sendiri,
-            jadi tidak dibungkus lingkaran brand seperti ikon petir dulu. */}
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src="/logo-islandgrid.png"
@@ -94,7 +93,7 @@ export default function Sidebar({
         <span className="font-bold text-lg">
           IslandGrid <span className="text-brand-600">AI</span>
         </span>
-        {/* tombol tutup — hanya tampil di layar kecil */}
+
         <button
           onClick={onClose}
           aria-label="Tutup menu"

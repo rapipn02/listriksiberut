@@ -19,7 +19,6 @@ const AKUN = [
   },
 ];
 
-/** Ubah kode error Firebase jadi kalimat yang dimengerti operator. */
 function pesanRamah(err: unknown): string {
   const kode =
     typeof err === "object" && err !== null && "code" in err
@@ -67,7 +66,6 @@ export default function LoginPage() {
     }
   }
 
-  /** Isi form dengan akun terpilih — pengguna tetap menekan "Masuk". */
   function isiForm(accEmail: string) {
     setError("");
     setEmail(accEmail);
@@ -132,9 +130,6 @@ export default function LoginPage() {
           </button>
         </form>
 
-        {/* Daftar akun hanya mengisi form — login tetap lewat Firebase Auth.
-            Sebelumnya tombol ini melakukan bypass tanpa autentikasi, sehingga
-            Firestore menolak semua pembacaan dan dashboard tampil kosong. */}
         <div className="mt-6 pt-5 border-t border-slate-200">
           <p className="text-[11px] font-semibold tracking-wide text-slate-400 mb-2">
             AKUN OPERATOR — KLIK UNTUK MENGISI

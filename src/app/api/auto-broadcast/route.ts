@@ -1,8 +1,3 @@
-// Auto-Broadcast: kirim imbauan ke warga TANPA campur tangan operator.
-//
-// Dipanggil cron VPS tiap 15 menit. Bila beban diprediksi >= 90% kapasitas PLTD
-// (atau ditandai defisit) dalam 3 jam ke depan, kirim FCM + buat jendela imbauan.
-// Jendela itu kemudian jadi acuan mesin verifikasi menilai foto warga.
 import { Timestamp } from "firebase-admin/firestore";
 import { getAdmin, FCM_TOPIC } from "@/lib/firebaseAdmin";
 import { cronDiizinkan, tolakCron } from "@/lib/cronAuth";
@@ -13,14 +8,8 @@ import {
 } from "@/lib/gridThresholds";
 import { findGreenWindow } from "@/lib/greenHours";
 
-/** Lama jendela imbauan berlaku setelah dikirim. */
 const DURASI_JENDELA_JAM = 4;
 
-/**
- * Format jam WIB sebagai "HH:MM".
- * Tidak memakai toLocaleTimeString("id-ID") karena locale Indonesia memisahkan
- * jam dengan titik ("10.00"), sedangkan aplikasi mobile mengharapkan titik dua.
- */
 function jamWib(d: Date): string {
   const bagian = new Intl.DateTimeFormat("en-GB", {
     hour: "2-digit",
@@ -38,7 +27,6 @@ const BULAN_ID = [
   "Juli", "Agustus", "September", "Oktober", "November", "Desember",
 ];
 
-/** "31 Juli 2026" dalam zona WIB — format yang dipakai aplikasi mobile. */
 function tanggalId(d: Date): string {
   const bagian = new Intl.DateTimeFormat("en-GB", {
     day: "numeric",
@@ -64,7 +52,6 @@ export async function POST(request: Request) {
   const sekarang = Date.now();
 
   try {
-    // Saklar di Pengaturan bisa mematikan otomasi ini.
     const setelan = await db.collection("settings").doc("notifikasi").get();
     if (setelan.exists && setelan.data()?.auto_broadcast_aktif === false) {
       return Response.json({
@@ -75,16 +62,12 @@ export async function POST(request: Request) {
     }
     const poinPerPartisipasi = setelan.data()?.poin_per_partisipasi ?? 25;
 
-    // Kapasitas + prakiraan terdekat.
     const statusSnap = await db
       .collection("system_status")
       .doc("siberut_grid")
       .get();
     const kapasitasPltd = statusSnap.data()?.total_pltd_capacity_kw ?? 0;
 
-    // Ambil 24 jam: ambang peringatan hanya memakai 3 jam pertama (difilter di
-    // dalam evaluasiAmbang), tapi pencarian Jam Emas butuh rentang penuh —
-    // saat malam, surplus surya baru muncul besok siang.
     const fcSnap = await db
       .collection("power_forecasts")
       .where("timestamp", ">=", Timestamp.fromMillis(sekarang - 3600_000))
@@ -105,7 +88,6 @@ export async function POST(request: Request) {
       };
     });
 
-    // Jam Emas dihitung dari prakiraan — dipakai sebagai jendela sesi otomatis.
     const jamEmas = findGreenWindow(
       titik.map((t) => ({
         jam: t.jam,
@@ -125,10 +107,6 @@ export async function POST(request: Request) {
       });
     }
 
-    // Anti-spam: sudah ada sesi otomatis yang masih berjalan?
-    // Filter hanya pada satu field (range) supaya tidak memerlukan composite
-    // index yang harus dibuat manual di Console; sisanya disaring di memori —
-    // jumlah sesi yang masih aktif selalu sedikit.
     const sesiSnap = await db
       .collection("load_shift_sessions")
       .where("endAt", ">", Timestamp.fromMillis(sekarang))
@@ -161,8 +139,7 @@ export async function POST(request: Request) {
       timestamp: Timestamp.fromMillis(sekarang),
       dibuat_oleh: "sistem",
     });
-    // Buat sesi load shifting otomatis. Mobile menyalakan tombol "kirim bukti"
-    // begitu ada sesi ACTIVE, jadi warga bisa langsung berpartisipasi.
+
     const mulai = new Date(sekarang);
     const selesai = new Date(sekarang + DURASI_JENDELA_JAM * 3600_000);
     const sesiRef = db.collection("load_shift_sessions").doc();
@@ -171,7 +148,7 @@ export async function POST(request: Request) {
       startTime: jamWib(mulai),
       endTime: jamWib(selesai),
       status: "ACTIVE",
-      // Target hemat kasar: kelebihan beban di atas kapasitas × durasi.
+
       targetSavingKwh:
         Math.round(
           Math.max(0, (hasil.pemicu?.bebanKw ?? 0) - kapasitasPltd) *

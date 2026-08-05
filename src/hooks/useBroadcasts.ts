@@ -5,7 +5,6 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 import { db, isFirebaseConfigured } from "@/lib/firebase";
 import type { BroadcastNotification } from "@/lib/types";
 
-/** Riwayat broadcast terbaru — dipakai dropdown lonceng & halaman Notifikasi. */
 export function useBroadcasts(max = 8) {
   const [items, setItems] = useState<BroadcastNotification[]>([]);
   const [loading, setLoading] = useState(isFirebaseConfigured);
@@ -36,7 +35,6 @@ export function useBroadcasts(max = 8) {
   return { items, loading };
 }
 
-/** "3 menit lalu", "2 jam lalu", "kemarin" */
 export function waktuRelatif(d: Date): string {
   const detik = Math.floor((Date.now() - d.getTime()) / 1000);
   if (detik < 60) return "baru saja";

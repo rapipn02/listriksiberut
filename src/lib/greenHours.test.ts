@@ -21,9 +21,9 @@ describe("findGreenWindow", () => {
     ]);
     expect(w).not.toBeNull();
     expect(w!.mulai).toBe("10:00");
-    expect(w!.selesai).toBe("13:00"); // slot 12:00 berakhir pukul 13:00
+    expect(w!.selesai).toBe("13:00");
     expect(w!.jam).toBe(3);
-    expect(w!.surplusKw).toBe(23); // 55 - 32
+    expect(w!.surplusKw).toBe(23);
   });
 
   it("null saat tidak ada surplus", () => {
@@ -44,9 +44,9 @@ describe("findGreenWindow", () => {
 
   it("memilih rentang terpanjang, bukan yang pertama", () => {
     const w = findGreenWindow([
-      p("07:00", 40, 30), // surplus 1 jam
+      p("07:00", 40, 30),
       p("08:00", 10, 30),
-      p("09:00", 40, 30), // surplus 3 jam
+      p("09:00", 40, 30),
       p("10:00", 45, 30),
       p("11:00", 42, 30),
     ]);
