@@ -1,114 +1,105 @@
-# IslandGrid AI — Dashboard Operator (Web)
+# IslandGrid AI — Dashboard Operator
 
-Dashboard operator BUMDes/PLTD Pulau Siberut. Next.js + Firebase + Recharts.
-Bagian **web** dari sistem IslandGrid AI (ML FastAPI + Mobile Android + Web).
+Dashboard operator BUMDes/PLTD Pulau Siberut, Mentawai. Memantau kesetimbangan
+daya PLTS + PLTD, mengumumkan Jam Emas ke warga, memverifikasi bukti partisipasi,
+dan mengelola poin serta hadiah.
 
-## Fitur
-- **Login** role-based (allowlist Firestore `operators/{uid}`): Admin BUMDes / Teknisi PLTD (menu Manajemen Poin disembunyikan untuk teknisi).
-- **Dashboard** real-time: dua badge status sesuai kontrak ML (*Kondisi Saat Ini* dari `current_operating_status`, *Risiko 48 Jam* dari `forecast_risk_status`), kurva kesetimbangan daya (Recharts), cuaca, indikator data basi, tombol Perbarui Prediksi.
-- **Jam Emas AI** dihitung dari data Firestore (`src/lib/greenHours.ts`) — bukan hardcode, dan tidak bergantung pada layanan ML.
-- **Kalkulator BBM** solar (slider kepatuhan + gauge).
-- **Notifikasi**: broadcast **FCM dikirim langsung oleh web** (`/api/broadcast`, firebase-admin server-side) ke topic `WARGA` + catat ke `broadcast_notifications`; pengatur poin insentif.
-- **Manajemen Poin** BUMDes: peringkat warga + persetujuan penukaran.
+Next.js 16 · React 19 · Firebase (Auth + Firestore) · Tailwind 4 · Recharts
 
-## Integrasi tim
+---
 
-Firestore adalah penghubung antar tim — web tetap berfungsi penuh walau layanan ML mati.
+## Menjalankan
 
-| Koleksi | Ditulis oleh | Dibaca web |
-|---|---|---|
-| `system_status/siberut_grid` | pipeline ML | ✅ |
-| `power_forecasts/{YYYY-MM-DD_HH}` | pipeline ML | ✅ |
-| `BUMDes_rewards`, `operators`, `reward_catalog`, `voucher_stock` | web | ✅ |
-| `broadcast_notifications` | web | mobile |
-
-Mengacu pada `docs/FIRESTORE_CONTRACT.md` di repo [zhhraid/islandgrid-ai-ml](https://github.com/zhhraid/islandgrid-ai-ml). Kapasitas asli Siberut: **PLTS 75 kWp**, **PLTD 50 kW**, 327 rumah tangga.
-
-> ⚠️ **`power_forecasts` milik pipeline ML.** Kontrak mereka: dokumen lama tidak pernah dihapus. `npm run seed` sengaja **melewati** koleksi ini kalau sudah berisi data. Flag `--force-forecasts` menimpanya — jangan dipakai kecuali yakin belum ada data ML.
-
-## Jalankan
 ```bash
 npm install
-npm run dev
+cp .env.example .env.local     # isi nilainya, lihat tabel di bawah
+npm run dev                    # http://localhost:3000
 ```
-Buka http://localhost:3000. **Firebase wajib dikonfigurasi** (lihat bawah) — login
-selalu lewat Firebase Auth, tidak ada mode demo tanpa autentikasi.
 
-Akun operator (kata sandi `password123`):
-| Email | Peran |
+Firebase **wajib** dikonfigurasi — login memakai Firebase Auth, tidak ada mode
+demo tanpa autentikasi.
+
+### Isi `.env.local`
+
+| Variabel | Diambil dari |
 |---|---|
-| `admin@bumdes.id` | Admin BUMDes — akses penuh |
-| `teknisi@bumdes.id` | Teknisi PLTD — tanpa Sesi, Verifikasi, Hadiah & Poin |
+| `NEXT_PUBLIC_FIREBASE_API_KEY`, `MESSAGING_SENDER_ID`, `APP_ID` | Firebase Console → Project settings → General → Your apps |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Project settings → Service accounts → Generate new private key, simpan sebagai `serviceAccountKey.json` |
+| `CRON_SECRET` | bebas, buat acak: `openssl rand -hex 32` |
+| `ISLANDGRID_API_BASE_URL` | alamat layanan prediksi ML (opsional) |
 
-## Aktifkan Firebase (data real)
-1. Isi `.env.local` dari Firebase Console (Project settings > Web app config):
-   `NEXT_PUBLIC_FIREBASE_API_KEY`, `MESSAGING_SENDER_ID`, `APP_ID` (yang lain sudah terisi).
-2. Download service account (Project settings > Service accounts > Generate new private key) → simpan `serviceAccountKey.json` di folder ini.
-3. Seed data + buat akun operator:
-   ```bash
-   npm run seed
-   ```
-   Login: `admin@bumdes.id` / `teknisi@bumdes.id` — password `password123`.
-4. FCM aktif otomatis begitu service account tersedia. Tanpa kredensial → balasan `mode: "mock"` (tidak error).
+Sisanya sudah terisi di `.env.example`.
 
-Agar notifikasi sampai ke HP, aplikasi Android harus **subscribe topic `WARGA`**.
-
-## Test
-```bash
-npm test        # 40 unit test: fuel, greenHours, gridThresholds, verification, photo
-```
-
-Foto bukti demo dibuat oleh `scripts/fotoContoh.ts` (PNG 480×320, tanpa dependensi
-tambahan). Untuk mengganti foto placeholder lama di Firestore tanpa menyentuh
-kiriman asli dari mobile:
-```bash
-npx tsx scripts/perbaikiFotoDemo.ts
-```
-
-## Build & Deploy VPS
-```bash
-npm run build   # output: standalone
-pm2 start .next/standalone/server.js --name islandgrid-web
-```
-Salin `.next/static` → `.next/standalone/.next/static` dan `public` → `.next/standalone/public`.
-Reverse proxy nginx ke :3000 + TLS (certbot).
-
-Di produksi jangan menyertakan file kunci — isi `FIREBASE_SERVICE_ACCOUNT_JSON` (isi JSON dalam satu baris) sebagai env.
-
-## Menjalankan layanan ML di VPS yang sama (opsional)
-
-Mengaktifkan tombol **Perbarui Prediksi** dan pembaruan prediksi otomatis.
+### Menyiapkan data + akun
 
 ```bash
-git clone https://github.com/zhhraid/islandgrid-ai-ml.git && cd islandgrid-ai-ml
-docker build -t islandgrid-ml .
-docker run -d --name islandgrid-ml --restart unless-stopped \
-  -p 127.0.0.1:8080:8080 \
-  -e FIREBASE_PROJECT_ID=islandgrid-ai \
-  -e ISLANDGRID_FIRESTORE_SCHEMA=snake_case \
-  -e ISLANDGRID_API_KEY=<kunci> \
-  -e GOOGLE_APPLICATION_CREDENTIALS=/app/sa.json \
-  -v /path/serviceAccount.json:/app/sa.json:ro \
-  islandgrid-ml
+npm run seed
 ```
-Port sengaja di-bind ke `127.0.0.1` — API ML tidak terbuka ke internet, web memanggilnya dari dalam server.
-Lalu isi di `.env.local` web: `ISLANDGRID_API_BASE_URL=http://127.0.0.1:8080` + `ISLANDGRID_API_KEY`.
 
-Cron pembaruan otomatis (aaPanel → Cron → Shell Script, tiap 3 jam):
+Membuat akun operator, warga contoh, katalog hadiah, stok voucher, sesi Jam Emas
+yang sedang berjalan, dan beberapa pengajuan bukti foto untuk dicoba.
+
+> Koleksi `power_forecasts` milik pipeline ML — seed sengaja melewatinya bila
+> sudah berisi data.
+
+---
+
+## Peran
+
+Login di `/login`. Kata sandi kedua akun: `password123`.
+
+| Akun | Peran | Bisa mengakses |
+|---|---|---|
+| `admin@bumdes.id` | Admin BUMDes | seluruh halaman |
+| `teknisi@bumdes.id` | Teknisi PLTD | Dashboard, Kalkulator BBM, Notifikasi, Pengaturan, Bantuan |
+
+Teknisi tidak melihat menu **Sesi Jam Emas**, **Verifikasi**, **Hadiah**, dan
+**Manajemen Poin** — semua yang menyangkut poin dan uang hanya untuk Admin
+BUMDes. Peran dibaca dari koleksi `operators/{uid}` di Firestore, bukan dari
+klien, jadi tidak bisa dipalsukan lewat browser.
+
+---
+
+## Halaman
+
+| Halaman | Isi |
+|---|---|
+| Dashboard | status grid, kurva kesetimbangan daya 24 jam, Jam Emas, cuaca, hitung mundur defisit |
+| Kalkulator BBM | penghematan solar, biaya, dan emisi menurut tingkat kepatuhan warga |
+| Notifikasi | kirim imbauan FCM ke warga + riwayat broadcast |
+| Sesi Jam Emas | buat/ubah jadwal sesi; status berpindah otomatis UPCOMING → ACTIVE → ENDED |
+| Verifikasi | bukti foto warga dinilai mesin aturan; operator bisa menimpa keputusannya |
+| Hadiah | katalog hadiah, stok kode voucher, riwayat penukaran |
+| Manajemen Poin | peringkat poin warga |
+
+---
+
+## Perintah lain
+
 ```bash
-docker exec islandgrid-ml python scripts/scheduler.py --run-once
+npm test        # 40 unit test (kalkulator, Jam Emas, ambang beban, verifikasi, foto)
+npm run build   # build produksi (output standalone)
+npm run lint
 ```
-Butuh artefak model `artifacts/model_plts_siberut.pkl` + `model_metadata.json` dari tim ML.
 
-## Aturan keamanan Firestore
+---
 
-`firestore.rules` ada di folder ini. Tempel isinya di Firebase Console →
-Firestore Database → Rules → **Publish**. Tanpa itu, siapa pun yang login bisa
-mengubah poin dan katalog hadiah langsung dari klien.
+## Keamanan Firestore
 
-Ringkas: operator dibaca dari `operators/{uid}`; warga hanya boleh membuat
-`participation_requests` miliknya sendiri, **mengurangi** poinnya sendiri saat
-menukar hadiah, dan menandai satu voucher jadi terpakai. Menaikkan poin hanya
-bisa lewat Admin SDK (server).
+Tempel isi `firestore.rules` di Firebase Console → Firestore Database → Rules →
+**Publish**. Tanpa itu, siapa pun yang login bisa mengubah poin dan harga hadiah
+langsung dari klien.
 
-> Konstanta kalkulator BBM di `src/lib/fuel.ts` — konfirmasi angka domain ke tim.
+Ringkasnya: warga hanya boleh membuat pengajuan miliknya sendiri, **mengurangi**
+poinnya sendiri saat menukar hadiah, dan menandai satu voucher jadi terpakai.
+Menambah poin hanya bisa lewat server (Admin SDK).
+
+---
+
+## Catatan
+
+- Angka beban dan ketersediaan PLTD berasal dari skenario tim ML, bukan telemetri
+  meteran sungguhan.
+- Foto bukti disimpan sebagai Base64 di dalam dokumen Firestore (batas 1 MiB per
+  dokumen) — aplikasi mobile mengompres sebelum mengirim.
+- Konstanta kalkulator BBM ada di `src/lib/fuel.ts`.
