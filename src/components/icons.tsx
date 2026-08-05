@@ -1,12 +1,6 @@
 type P = { className?: string };
 const base = "none";
 
-export const Bolt = ({ className }: P) => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className={className}>
-    <path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z" />
-  </svg>
-);
-
 const stroke = (d: React.ReactNode) => ({ className }: P) => (
   <svg
     viewBox="0 0 24 24"

@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
-import { Bolt } from "@/components/icons";
 
 export default function DashboardLayout({
   children,
@@ -27,7 +26,14 @@ export default function DashboardLayout({
     return (
       <div className="min-h-dvh flex items-center justify-center bg-page">
         <div className="flex items-center gap-2 text-slate-500">
-          <Bolt className="w-5 h-5 text-brand-600 animate-pulse" />
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-islandgrid.png"
+            alt=""
+            width={24}
+            height={24}
+            className="w-6 h-6 animate-pulse"
+          />
           Memuat…
         </div>
       </div>

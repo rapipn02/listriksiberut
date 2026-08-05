@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { isFirebaseConfigured } from "@/lib/firebase";
-import { Bolt } from "@/components/icons";
 
 const AKUN = [
   {
@@ -76,9 +75,14 @@ export default function LoginPage() {
     <div className="min-h-screen w-full flex items-center justify-center bg-slate-50 px-4">
       <div className="w-full max-w-md rounded-2xl bg-white border border-slate-200 p-8 shadow-sm">
         <div className="flex items-center gap-2 mb-7">
-          <div className="w-9 h-9 rounded-full bg-brand-600 flex items-center justify-center text-white">
-            <Bolt className="w-4.5 h-4.5" />
-          </div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src="/logo-islandgrid.png"
+            alt="IslandGrid AI"
+            width={36}
+            height={36}
+            className="w-9 h-9 shrink-0"
+          />
           <span className="font-bold text-lg">
             IslandGrid <span className="text-brand-600">AI</span>
           </span>
