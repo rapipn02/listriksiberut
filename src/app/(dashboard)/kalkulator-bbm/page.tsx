@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { hitungHemat } from "@/lib/fuel";
+import { FUEL, hitungHemat } from "@/lib/fuel";
 import { num, idr } from "@/lib/format";
 
 const PRESET = [20, 50, 80];
@@ -129,8 +129,9 @@ export default function KalkulatorPage() {
           </p>
         </div>
         <div className="rounded-xl bg-white border border-slate-200 p-4 xl:col-span-3 text-sm text-slate-600 flex items-center">
-          <b className="mr-1">Asumsi:</b> harga solar Rp 15.000/L · 1 L ≈ 2,68 kg
-          CO₂ · defisit rata-rata 25 kW malam hari.
+          <b className="mr-1">Asumsi:</b> harga solar{" "}
+          {idr(FUEL.hargaSolarPerLiter)}/L · 1 L ≈ {FUEL.co2PerLiter} kg CO₂ ·
+          defisit rata-rata 25 kW malam hari.
         </div>
       </div>
     </div>

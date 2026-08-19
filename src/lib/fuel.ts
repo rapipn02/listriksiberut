@@ -1,5 +1,5 @@
 export const FUEL = {
-  hargaSolarPerLiter: 15_000,
+  hargaSolarPerLiter: 10_000,
   co2PerLiter: 2.68,
   co2SerapPohonPerHari: 21,
   literPenuhPerHari: 650,

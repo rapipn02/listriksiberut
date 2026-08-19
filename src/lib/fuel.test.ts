@@ -5,7 +5,7 @@ describe("hitungHemat", () => {
   it("50% kepatuhan cocok dengan nilai mockup", () => {
     const h = hitungHemat(50);
     expect(h.liter).toBe(325);
-    expect(h.biaya).toBe(4_875_000);
+    expect(h.biaya).toBe(3_250_000);
     expect(h.co2).toBe(871);
     expect(h.pohon).toBe(41);
     expect(h.literTahun).toBe(118_625);
