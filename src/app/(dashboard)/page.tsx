@@ -14,6 +14,7 @@ import {
   Send,
   Download,
   Refresh,
+  Users,
   AlertTriangle,
   ArrowUpRight,
 } from "@/components/icons";
@@ -271,8 +272,9 @@ export default function DashboardPage() {
                 <p className="text-slate-500">
                   Partisipasi sesi {sesiBerjalan.startTime}–{sesiBerjalan.endTime}
                 </p>
-                <p className="font-semibold text-slate-700 mt-0.5">
-                  {sesiBerjalan.participantCount} dari {kk} KK asumsi (
+                <p className="font-semibold text-slate-700 mt-0.5 flex items-center gap-1.5">
+                  <Users className="w-4 h-4 text-slate-400" />
+                  {sesiBerjalan.participantCount}/{kk} KK berpartisipasi (
                   {persenTeks(persenPartisipasi(sesiBerjalan.participantCount, kk))}%)
                 </p>
               </>

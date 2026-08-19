@@ -11,7 +11,7 @@ import {
   hapusSesi,
   formatTanggalId,
 } from "@/lib/sessionActions";
-import { Refresh } from "@/components/icons";
+import { Refresh, Users } from "@/components/icons";
 import type { SessionStatus } from "@/lib/types";
 
 const STATUS_META: Record<SessionStatus, { label: string; pill: string }> = {
@@ -158,12 +158,16 @@ export default function SesiPage() {
             </p>
             <p className="text-sm text-white/90 mt-1">
               beban {aktif[0].currentLoadKw} kW dari {aktif[0].capacityKw} kW ·
-              target hemat {aktif[0].targetSavingKwh} kWh
+              target pengalihan {aktif[0].targetSavingKwh} kWh
             </p>
             <div className="mt-3 max-w-sm">
               <div className="flex items-baseline justify-between text-sm">
-                <span className="text-white/90">
-                  {aktif[0].participantCount} dari {kk} KK asumsi ikut
+                <span className="flex items-center gap-1.5 text-white/90">
+                  <Users className="w-4 h-4" />
+                  <b className="text-white">
+                    {aktif[0].participantCount}/{kk}
+                  </b>{" "}
+                  KK asumsi berpartisipasi
                 </span>
                 <span className="font-bold">
                   {persenTeks(persenPartisipasi(aktif[0].participantCount, kk))}%
@@ -187,7 +191,8 @@ export default function SesiPage() {
             <p className="font-semibold">Tidak ada sesi berjalan</p>
             <p className="text-sm text-slate-500 mt-1">
               Warga belum bisa mengirim bukti partisipasi. Buat sesi baru di
-              bawah, atau tunggu sistem membuatnya otomatis saat beban tinggi.
+              bawah, atau tunggu sistem membuatnya otomatis saat beban
+              mendekati batas PLTD.
             </p>
           </>
         )}
@@ -225,7 +230,7 @@ export default function SesiPage() {
               </Isian>
             </div>
             <div className="grid grid-cols-2 gap-3">
-              <Isian label="Target hemat (kWh)">
+              <Isian label="Target pengalihan (kWh)">
                 <input
                   type="number"
                   value={target}
@@ -233,7 +238,7 @@ export default function SesiPage() {
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </Isian>
-              <Isian label="Kapasitas (kW)">
+              <Isian label="Kapasitas PLTS (kW)">
                 <input
                   type="number"
                   value={kapasitas}
@@ -277,7 +282,11 @@ export default function SesiPage() {
                 return (
                   <div
                     key={s.id}
-                    className="border border-slate-200 rounded-xl p-3 flex items-start gap-3 flex-wrap"
+                    className={`border rounded-xl p-3 flex items-start gap-3 flex-wrap ${
+                      s.status === "ACTIVE"
+                        ? "border-brand-400 bg-brand-50/70"
+                        : "border-slate-200"
+                    }`}
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -296,15 +305,18 @@ export default function SesiPage() {
                         )}
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">{s.date}</p>
-                      <p className="text-xs text-slate-600 mt-1">
-                        {s.participantCount} peserta ·{" "}
-                        {persenTeks(persenPartisipasi(s.participantCount, kk))}% dari {kk} KK
-                        asumsi · beban {s.currentLoadKw} / {s.capacityKw} kW ·
-                        target {s.targetSavingKwh} kWh
+                      <p className="text-xs font-medium text-slate-700 mt-1.5 flex items-center gap-1.5">
+                        <Users className="w-3.5 h-3.5 text-slate-400" />
+                        {s.participantCount}/{kk} KK berpartisipasi (
+                        {persenTeks(persenPartisipasi(s.participantCount, kk))}%)
+                      </p>
+                      <p className="text-xs text-slate-500 mt-1">
+                        beban {s.currentLoadKw} / {s.capacityKw} kW (kapasitas
+                        PLTS) · target pengalihan {s.targetSavingKwh} kWh
                       </p>
                     </div>
                     <div className="flex gap-2 shrink-0">
-                      {s.status !== "ACTIVE" && (
+                      {s.status === "UPCOMING" && (
                         <button
                           onClick={() => ubahStatusSesi(s.id, "ACTIVE")}
                           className="px-3 py-1.5 rounded-lg bg-brand-600 hover:bg-brand-700 text-white text-sm font-semibold"
