@@ -21,7 +21,7 @@ export const STATUS_GRID: Record<GridStatus, TampilanStatus> = {
     titik: "bg-brand-600",
   },
   WARNING: {
-    label: "WASPADA",
+    label: "WARNING",
     pesan: "Waspada potensi penurunan daya surya (≤ 20%).",
     kondisi: "Potensi penurunan daya surya sampai 20%.",
     grad: "from-amber-300 to-amber-400",
@@ -30,7 +30,7 @@ export const STATUS_GRID: Record<GridStatus, TampilanStatus> = {
     titik: "bg-amber-400",
   },
   ALERT: {
-    label: "ALERT DEFISIT",
+    label: "ALERT",
     pesan: "Bahaya! Defisit daya surya kritis (> 20%).",
     kondisi: "Defisit daya surya lebih dari 20%.",
     grad: "from-red-500 to-red-700",

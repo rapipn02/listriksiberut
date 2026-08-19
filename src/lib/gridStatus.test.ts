@@ -17,7 +17,7 @@ describe("STATUS_GRID", () => {
     }
   });
 
-  it("menyebut ambang 20% pada WASPADA dan ALERT", () => {
+  it("menyebut ambang 20% pada WARNING dan ALERT", () => {
     expect(STATUS_GRID.WARNING.pesan).toContain("20%");
     expect(STATUS_GRID.ALERT.pesan).toContain("20%");
     expect(STATUS_GRID.NORMAL.pesan).not.toContain("20%");

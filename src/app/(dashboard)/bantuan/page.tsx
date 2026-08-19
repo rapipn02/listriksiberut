@@ -8,7 +8,7 @@ const LANGKAH = [
   {
     n: 1,
     judul: "Pantau status grid",
-    isi: "Buka Dashboard. Kartu hijau kiri menunjukkan Kondisi Saat Ini, kartu di sebelahnya menunjukkan Risiko 48 Jam. Kalau Risiko 48 Jam berwarna merah (ALERT DEFISIT), artinya dalam dua hari ke depan beban akan melampaui pasokan.",
+    isi: "Buka Dashboard. Kartu hijau kiri menunjukkan Kondisi Saat Ini, kartu di sebelahnya menunjukkan Risiko 48 Jam. Kalau Risiko 48 Jam berwarna merah (ALERT), artinya dalam dua hari ke depan beban akan melampaui pasokan.",
   },
   {
     n: 2,
