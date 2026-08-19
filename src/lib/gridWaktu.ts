@@ -1,12 +1,12 @@
 export interface TitikGrid {
   waktuMs: number;
   jam: string;
-  defisit: boolean;
+  surplus: boolean;
 }
 
 export interface TargetWaktu {
-  sedangDefisit: boolean;
-  arah: "menuju_defisit" | "menuju_aman";
+  sedangSurplus: boolean;
+  arah: "menuju_surplus" | "menuju_habis";
   targetMs: number | null;
   jam: string | null;
 }
@@ -18,15 +18,15 @@ export function targetBerikut(
   const urut = [...titik].sort((a, b) => a.waktuMs - b.waktuMs);
   const lewat = urut.filter((t) => t.waktuMs <= sekarangMs);
   const kini = lewat.length > 0 ? lewat[lewat.length - 1] : urut[0];
-  const sedangDefisit = Boolean(kini?.defisit);
+  const sedangSurplus = Boolean(kini?.surplus);
 
   const beda = urut.find(
-    (t) => t.waktuMs > sekarangMs && t.defisit !== sedangDefisit,
+    (t) => t.waktuMs > sekarangMs && t.surplus !== sedangSurplus,
   );
 
   return {
-    sedangDefisit,
-    arah: sedangDefisit ? "menuju_aman" : "menuju_defisit",
+    sedangSurplus,
+    arah: sedangSurplus ? "menuju_habis" : "menuju_surplus",
     targetMs: beda?.waktuMs ?? null,
     jam: beda?.jam ?? null,
   };

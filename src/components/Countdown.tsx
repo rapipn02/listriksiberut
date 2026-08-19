@@ -22,16 +22,16 @@ export default function KartuWaktuGrid({ titik }: { titik: TitikGrid[] }) {
     };
   }, [titik]);
 
-  const menujuAman = target?.arah === "menuju_aman";
-  const judul = menujuAman ? "Waktu Menuju Aman" : "Waktu Menuju Defisit";
-  const sub = menujuAman
-    ? "Estimasi beban kembali di bawah pasokan"
-    : "Estimasi beban lampaui surya";
+  const sedangSurplus = target?.sedangSurplus ?? false;
+  const judul = sedangSurplus ? "Surplus Surya Berlangsung" : "Waktu Menuju Surplus";
+  const sub = sedangSurplus
+    ? "Sisa waktu sebelum beban melampaui surya"
+    : "Perkiraan saat produksi surya melampaui beban";
 
   let utama = "--:--:--";
   let catatan = "menghitung…";
   let kecil = false;
-  let hijau = false;
+  let hijau = sedangSurplus;
 
   if (target) {
     if (target.targetMs) {
@@ -41,17 +41,18 @@ export default function KartuWaktuGrid({ titik }: { titik: TitikGrid[] }) {
       const s = String(detik % 60).padStart(2, "0");
       utama = `${h}:${m}:${s}`;
       catatan = `jam : menit : detik · ${
-        menujuAman ? "aman" : "mulai"
+        sedangSurplus ? "berakhir" : "mulai"
       } pukul ${target.jam}`;
-    } else if (menujuAman) {
-      utama = "MASIH DEFISIT";
-      catatan = "Prakiraan 48 jam belum menunjukkan pemulihan";
-      kecil = true;
-    } else {
-      utama = "AMAN";
-      catatan = "Tidak ada defisit dalam prakiraan";
+    } else if (sedangSurplus) {
+      utama = "SURPLUS BERLANJUT";
+      catatan = "Surya masih melampaui beban sepanjang prakiraan";
       kecil = true;
       hijau = true;
+    } else {
+      utama = "TIDAK ADA SURPLUS";
+      catatan = "Prakiraan 24 jam: beban selalu melampaui surya";
+      kecil = true;
+      hijau = false;
     }
   }
 
@@ -66,12 +67,12 @@ export default function KartuWaktuGrid({ titik }: { titik: TitikGrid[] }) {
           className={`text-[10px] font-semibold rounded-full px-2 py-0.5 flex items-center gap-1 shrink-0 ${
             hijau
               ? "text-brand-300 bg-brand-500/20"
-              : "text-red-300 bg-red-500/20"
+              : "text-amber-300 bg-amber-500/20"
           }`}
         >
           <span
             className={`w-1.5 h-1.5 rounded-full ${
-              hijau ? "bg-brand-400" : "bg-red-400"
+              hijau ? "bg-brand-400" : "bg-amber-400"
             }`}
           />
           LIVE
@@ -79,7 +80,7 @@ export default function KartuWaktuGrid({ titik }: { titik: TitikGrid[] }) {
       </div>
       <div
         className={`font-extrabold mt-6 mb-1 tabular-nums ${
-          kecil ? "text-2xl sm:text-3xl" : "text-3xl sm:text-4xl tracking-widest"
+          kecil ? "text-xl sm:text-2xl" : "text-3xl sm:text-4xl tracking-widest"
         }`}
       >
         {utama}

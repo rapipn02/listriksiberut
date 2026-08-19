@@ -78,7 +78,7 @@ export default function DashboardPage() {
         .map((p) => ({
           waktuMs: p.waktuMs as number,
           jam: p.jam,
-          defisit: p.deficit,
+          surplus: p.plts > p.beban,
         })),
     [points],
   );
