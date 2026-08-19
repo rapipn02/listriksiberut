@@ -8,7 +8,7 @@ const LANGKAH = [
   {
     n: 1,
     judul: "Pantau status grid",
-    isi: "Buka Dashboard. Kartu hijau kiri menunjukkan Kondisi Saat Ini, kartu di sebelahnya menunjukkan Risiko 48 Jam. Kalau Risiko 48 Jam berwarna merah (ALERT), artinya dalam dua hari ke depan beban akan melampaui pasokan.",
+    isi: "Buka Dashboard. Kartu besar kiri menunjukkan Status Sistem — kondisi terburuk dalam 48 jam ke depan, sama dengan yang muncul di HP warga. Kartu di sebelahnya menunjukkan Kondisi Jam Ini. Kalau Status Sistem merah (ALERT), beban akan melampaui pasokan dalam dua hari ke depan.",
   },
   {
     n: 2,
@@ -102,8 +102,8 @@ export default function BantuanPage() {
           <h3 className="font-semibold mb-3">Pertanyaan umum</h3>
           <div className="space-y-3 text-sm">
             <Faq
-              t="Kenapa ada dua badge status?"
-              j="Kondisi Saat Ini menggambarkan jam berjalan. Risiko 48 Jam menggambarkan kondisi terburuk yang diperkirakan dalam dua hari ke depan — bisa merah walaupun sekarang masih aman."
+              t="Kenapa ada dua kartu status?"
+              j="Status Sistem adalah kondisi terburuk dalam prakiraan 48 jam — angka inilah yang juga dilihat warga di aplikasi. Kondisi Jam Ini menggambarkan jam yang sedang berjalan, jadi bisa NORMAL walaupun Status Sistem merah."
             />
             <Faq
               t="Data prediksi diperbarui berapa lama?"

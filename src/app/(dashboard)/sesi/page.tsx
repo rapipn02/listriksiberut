@@ -238,7 +238,7 @@ export default function SesiPage() {
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </Isian>
-              <Isian label="Kapasitas PLTS (kW)">
+              <Isian label="Kapasitas PLTD (kW)">
                 <input
                   type="number"
                   value={kapasitas}
@@ -311,8 +311,8 @@ export default function SesiPage() {
                         {persenTeks(persenPartisipasi(s.participantCount, kk))}%)
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
-                        beban {s.currentLoadKw} / {s.capacityKw} kW (kapasitas
-                        PLTS) · target pengalihan {s.targetSavingKwh} kWh
+                        beban {s.currentLoadKw} / {s.capacityKw} kW (batas
+                        PLTD) · target pengalihan {s.targetSavingKwh} kWh
                       </p>
                     </div>
                     <div className="flex gap-2 shrink-0">

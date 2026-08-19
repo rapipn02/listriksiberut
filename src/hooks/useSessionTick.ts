@@ -21,3 +21,20 @@ export function useSessionTick() {
     };
   }, []);
 }
+
+const JEDA_PRAKIRAAN_MS = 15 * 60_000;
+
+export function useForecastRefresh() {
+  useEffect(() => {
+    const jalankan = () => {
+      if (document.hidden) return;
+      fetch("/api/forecast/refresh", { method: "POST" }).catch(() => {});
+    };
+    const awal = setTimeout(jalankan, 0);
+    const id = setInterval(jalankan, JEDA_PRAKIRAAN_MS);
+    return () => {
+      clearTimeout(awal);
+      clearInterval(id);
+    };
+  }, []);
+}

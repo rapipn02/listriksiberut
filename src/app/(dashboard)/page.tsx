@@ -57,10 +57,11 @@ export default function DashboardPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
-  const operating = status?.current_operating_status ?? status?.current_status ?? "NORMAL";
-  const risk48 = status?.forecast_risk_status ?? status?.current_status ?? "NORMAL";
-  const meta = tampilanStatus(operating);
-  const riskMeta = tampilanStatus(risk48);
+  const statusSistem = status?.current_status ?? "NORMAL";
+  const statusJamIni =
+    status?.current_operating_status ?? status?.current_status ?? "NORMAL";
+  const meta = tampilanStatus(statusSistem);
+  const jamIniMeta = tampilanStatus(statusJamIni);
 
   const plts = status?.total_plts_capacity_kw ?? 75;
   const pltd = status?.total_pltd_capacity_kw ?? 50;
@@ -84,6 +85,7 @@ export default function DashboardPage() {
   );
 
   const kk = totalKk(status);
+  const jamSekarang = points[0]?.jam ?? "";
   const sesiBerjalan = aktif[0];
 
   const updatedAt = status?.updated_at?.toDate?.();
@@ -168,7 +170,7 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-medium">
               <span className="w-2 h-2 rounded-full bg-current opacity-90" />
-              Kondisi Saat Ini
+              Status Sistem
             </span>
             <ArrowUpRight className="w-4 h-4 opacity-80" />
           </div>
@@ -180,32 +182,36 @@ export default function DashboardPage() {
               <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
               {meta.pesan}
             </p>
+            <p className="text-[11px] mt-1 opacity-75">
+              Status terburuk dalam prakiraan 48 jam · sama dengan yang dilihat
+              warga di aplikasi
+            </p>
           </div>
         </div>
 
         <div className="rounded-xl bg-white border border-slate-200 p-5 flex flex-col justify-between min-h-[150px]">
           <div className="flex items-center justify-between">
-            <span className="text-sm text-slate-500">Risiko 48 Jam</span>
+            <span className="text-sm text-slate-500">
+              Kondisi Jam Ini{jamSekarang ? ` · pukul ${jamSekarang}` : ""}
+            </span>
             <span className="w-7 h-7 rounded-full border border-slate-200 flex items-center justify-center text-slate-400">
               <ArrowUpRight className="w-3 h-3" />
             </span>
           </div>
           <div>
             <span
-              className={`inline-block text-lg font-extrabold rounded-full px-3 py-1 ${riskMeta.pill}`}
+              className={`inline-block text-lg font-extrabold rounded-full px-3 py-1 ${jamIniMeta.pill}`}
             >
-              {riskMeta.label}
+              {jamIniMeta.label}
             </span>
-            <p className="text-xs text-slate-500 mt-2">
-              {riskMeta.pesan}
-            </p>
+            <p className="text-xs text-slate-500 mt-2">{jamIniMeta.pesan}</p>
           </div>
         </div>
 
         <MetricCard
           label="Kapasitas PLTS"
           value={plts}
-          unit="kW"
+          unit="kWp"
           note="▲ Panel surya terpasang"
           noteClass="text-brand-600"
         />
@@ -238,6 +244,9 @@ export default function DashboardPage() {
             </div>
           </div>
           <PowerBalanceChart points={points} pltdLimit={pltd} />
+          <p className="text-[11px] text-slate-400 mt-2">
+            kW = daya sesaat · kWp = kapasitas terpasang panel
+          </p>
         </div>
 
         <div className="rounded-xl bg-white border border-slate-200 p-5 flex flex-col">
