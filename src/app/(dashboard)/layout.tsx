@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { useSessionTick } from "@/hooks/useSessionTick";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
 
@@ -15,6 +16,7 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const { session, loading } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
+  useSessionTick();
 
   useEffect(() => {
     if (!loading && !session) router.replace("/login");

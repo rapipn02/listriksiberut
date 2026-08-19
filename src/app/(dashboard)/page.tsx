@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { usePowerForecasts, useSolarWeekly } from "@/hooks/usePowerForecasts";
 import { findGreenWindow } from "@/lib/greenHours";
+import { tampilanStatus } from "@/lib/gridStatus";
 import PowerBalanceChart from "@/components/PowerBalanceChart";
 import Countdown from "@/components/Countdown";
 import {
@@ -14,7 +15,6 @@ import {
   AlertTriangle,
   ArrowUpRight,
 } from "@/components/icons";
-import type { GridStatus } from "@/lib/types";
 import type { ForecastPoint } from "@/lib/demoData";
 
 function exportForecastCsv(points: ForecastPoint[]) {
@@ -30,30 +30,6 @@ function exportForecastCsv(points: ForecastPoint[]) {
   a.click();
   URL.revokeObjectURL(url);
 }
-
-const STATUS_META: Record<
-  GridStatus,
-  { label: string; sub: string; grad: string; pill: string }
-> = {
-  NORMAL: {
-    label: "NORMAL",
-    sub: "Sistem daya stabil",
-    grad: "from-brand-600 to-brand-800",
-    pill: "text-brand-700 bg-brand-50",
-  },
-  WARNING: {
-    label: "WASPADA",
-    sub: "Pantau beban puncak",
-    grad: "from-amber-500 to-amber-700",
-    pill: "text-amber-700 bg-amber-50",
-  },
-  ALERT: {
-    label: "ALERT DEFISIT",
-    sub: "Perlu load shifting warga",
-    grad: "from-red-500 to-red-700",
-    pill: "text-red-700 bg-red-50",
-  },
-};
 
 const STALE_AFTER_MS = 2 * 3600_000;
 
@@ -79,8 +55,8 @@ export default function DashboardPage() {
 
   const operating = status?.current_operating_status ?? status?.current_status ?? "NORMAL";
   const risk48 = status?.forecast_risk_status ?? status?.current_status ?? "NORMAL";
-  const meta = STATUS_META[operating];
-  const riskMeta = STATUS_META[risk48];
+  const meta = tampilanStatus(operating);
+  const riskMeta = tampilanStatus(risk48);
 
   const plts = status?.total_plts_capacity_kw ?? 75;
   const pltd = status?.total_pltd_capacity_kw ?? 50;
@@ -177,11 +153,11 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-6">
         <div
-          className={`rounded-xl p-5 text-white bg-gradient-to-br ${meta.grad} flex flex-col justify-between min-h-[150px]`}
+          className={`rounded-xl p-5 bg-gradient-to-br ${meta.grad} ${meta.teks} flex flex-col justify-between min-h-[150px]`}
         >
           <div className="flex items-center justify-between">
             <span className="flex items-center gap-2 text-sm font-medium">
-              <span className="w-2 h-2 rounded-full bg-white/90" />
+              <span className="w-2 h-2 rounded-full bg-current opacity-90" />
               Kondisi Saat Ini
             </span>
             <ArrowUpRight className="w-4 h-4 opacity-80" />
@@ -190,9 +166,9 @@ export default function DashboardPage() {
             <div className="text-2xl sm:text-3xl font-extrabold leading-none">
               {meta.label}
             </div>
-            <p className="text-xs mt-2 flex items-center gap-1 text-white/90">
-              <AlertTriangle className="w-3 h-3" />
-              {meta.sub}
+            <p className="text-xs mt-2 flex items-start gap-1 opacity-90">
+              <AlertTriangle className="w-3 h-3 mt-0.5 shrink-0" />
+              {meta.pesan}
             </p>
           </div>
         </div>
@@ -211,7 +187,7 @@ export default function DashboardPage() {
               {riskMeta.label}
             </span>
             <p className="text-xs text-slate-500 mt-2">
-              Status terburuk dalam prakiraan
+              {riskMeta.pesan}
             </p>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useAuth } from "@/components/AuthProvider";
+import { STATUS_GRID } from "@/lib/gridStatus";
 
 const LANGKAH = [
   {
@@ -86,21 +87,14 @@ export default function BantuanPage() {
         <div className="rounded-xl bg-white border border-slate-200 p-5">
           <h3 className="font-semibold mb-3">Arti warna status</h3>
           <div className="space-y-3 text-sm">
-            <Status
-              warna="bg-brand-600"
-              nama="NORMAL"
-              arti="Pasokan aman. Tidak perlu tindakan khusus."
-            />
-            <Status
-              warna="bg-amber-500"
-              nama="WASPADA"
-              arti="Cadangan menipis. Pantau lebih sering, siapkan pesan imbauan."
-            />
-            <Status
-              warna="bg-red-600"
-              nama="ALERT DEFISIT"
-              arti="Beban diperkirakan melampaui pasokan. Kirim broadcast agar warga menggeser pemakaian."
-            />
+            {(["NORMAL", "WARNING", "ALERT"] as const).map((k) => (
+              <Status
+                key={k}
+                warna={STATUS_GRID[k].titik}
+                nama={STATUS_GRID[k].label}
+                arti={`${STATUS_GRID[k].kondisi} ${STATUS_GRID[k].pesan}`}
+              />
+            ))}
           </div>
         </div>
 
