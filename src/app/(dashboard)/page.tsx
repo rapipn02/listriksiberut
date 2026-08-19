@@ -1,10 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
-import { usePowerForecasts } from "@/hooks/usePowerForecasts";
-import { demoProduksiSurya } from "@/lib/demoData";
+import { usePowerForecasts, useSolarWeekly } from "@/hooks/usePowerForecasts";
 import { findGreenWindow } from "@/lib/greenHours";
 import PowerBalanceChart from "@/components/PowerBalanceChart";
 import Countdown from "@/components/Countdown";
@@ -74,6 +73,7 @@ export default function DashboardPage() {
   const router = useRouter();
   const { status } = useSystemStatus();
   const { points, weather } = usePowerForecasts();
+  const { hari: produksiSurya } = useSolarWeekly();
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -88,9 +88,17 @@ export default function DashboardPage() {
   const bebanPuncak = points.length
     ? Math.round(Math.max(...points.map((p) => p.beban)))
     : 0;
-  const maxSolar = Math.max(...demoProduksiSurya.map((d) => d.kwh));
+  const maxSolar = Math.max(1, ...produksiSurya.map((d) => d.kwh));
 
   const green = findGreenWindow(points);
+  const sedangDefisit = points.length > 0 && points[0].deficit;
+  const titikDefisit = useMemo(
+    () =>
+      points
+        .filter((p) => p.deficit && p.waktuMs)
+        .map((p) => ({ waktuMs: p.waktuMs as number, jam: p.jam })),
+    [points],
+  );
 
   const updatedAt = status?.updated_at?.toDate?.();
   const isStale = updatedAt ? Date.now() - updatedAt.getTime() > STALE_AFTER_MS : false;
@@ -319,14 +327,21 @@ export default function DashboardPage() {
           <div className="flex items-center justify-between">
             <div>
               <h3 className="font-semibold">Produksi Surya</h3>
-              <p className="text-xs text-slate-500">7 hari terakhir · kWh</p>
+              <p className="text-xs text-slate-500">
+              7 hari terakhir · kWh prediksi PLTS
+            </p>
             </div>
             <span className="text-xs font-medium text-slate-600 bg-slate-100 rounded-full px-2.5 py-0.5">
               Mingguan
             </span>
           </div>
+          {produksiSurya.length === 0 ? (
+            <p className="text-sm text-slate-400 text-center py-14">
+              Belum ada data prakiraan tersimpan.
+            </p>
+          ) : (
           <div className="flex items-end justify-between gap-2 h-40 mt-4">
-            {demoProduksiSurya.map((d) => (
+            {produksiSurya.map((d) => (
               <div
                 key={d.hari}
                 className="flex-1 h-full flex flex-col items-center justify-end gap-1"
@@ -341,6 +356,7 @@ export default function DashboardPage() {
               </div>
             ))}
           </div>
+          )}
         </div>
 
         <div className="rounded-xl p-5 text-white bg-gradient-to-br from-slate-900 to-slate-800">
@@ -354,10 +370,18 @@ export default function DashboardPage() {
               LIVE
             </span>
           </div>
-          <div className="text-3xl sm:text-4xl font-extrabold tracking-widest mt-6 mb-1">
-            <Countdown />
-          </div>
-          <p className="text-xs text-slate-400">jam : menit : detik</p>
+          {sedangDefisit ? (
+            <>
+              <div className="text-2xl sm:text-3xl font-extrabold mt-6 mb-1">
+                SEDANG DEFISIT
+              </div>
+              <p className="text-xs text-slate-400">
+                Beban sudah melampaui produksi surya
+              </p>
+            </>
+          ) : (
+            <Countdown titik={titikDefisit} />
+          )}
         </div>
       </div>
     </div>

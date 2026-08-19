@@ -152,3 +152,94 @@ describe("verifikasiBanyak", () => {
     expect(verifikasiBanyak([], jendela, [], SEKARANG)).toEqual([]);
   });
 });
+
+describe("sidik jari foto", () => {
+  it("menolak foto yang identik dengan pengajuan lain", () => {
+    const h = verifikasi(
+      ajukan({ hashFoto: ["abc"] }),
+      jendela,
+      [],
+      SEKARANG,
+      ["abc"],
+    );
+    expect(h.status).toBe("REJECTED");
+    expect(h.reasonCode).toBe("ERR_DUPLICATE_PHOTO");
+  });
+
+  it("meloloskan pengajuan tanpa hash sama sekali", () => {
+    const h = verifikasi(ajukan(), jendela, [], SEKARANG, ["abc"]);
+    expect(h.status).toBe("APPROVED");
+    expect(h.reasonCode).toBe("OK_APPROVED");
+  });
+
+  it("menangkap dua foto kembar di dalam satu batch", () => {
+    const hasil = verifikasiBanyak(
+      [
+        ajukan({ id: "a", userId: "warga_a", hashFoto: ["sama"] }),
+        ajukan({
+          id: "b",
+          userId: "warga_b",
+          hashFoto: ["sama"],
+          submittedAtMs: SEKARANG - 5 * 60_000,
+        }),
+      ],
+      jendela,
+      [],
+      SEKARANG,
+    );
+    const status = hasil.map((h) => h.hasil.status);
+    expect(status.filter((s) => s === "APPROVED")).toHaveLength(1);
+    expect(status.filter((s) => s === "REJECTED")).toHaveLength(1);
+    expect(
+      hasil.find((h) => h.hasil.status === "REJECTED")?.hasil.reasonCode,
+    ).toBe("ERR_DUPLICATE_PHOTO");
+  });
+
+  it("tidak menolak foto berbeda dari warga berbeda", () => {
+    const hasil = verifikasiBanyak(
+      [
+        ajukan({ id: "a", userId: "warga_a", hashFoto: ["h1"] }),
+        ajukan({ id: "b", userId: "warga_b", hashFoto: ["h2"] }),
+      ],
+      jendela,
+      [],
+      SEKARANG,
+    );
+    expect(hasil.every((h) => h.hasil.status === "APPROVED")).toBe(true);
+  });
+});
+
+describe("kode alasan", () => {
+  it("memberi kode berbeda untuk tiap sebab penolakan", () => {
+    expect(
+      verifikasi(
+        ajukan({ submittedAtMs: SEKARANG + 60 * 60_000 }),
+        jendela,
+        [],
+        SEKARANG,
+      ).reasonCode,
+    ).toBe("ERR_FUTURE_TIMESTAMP");
+
+    expect(
+      verifikasi(ajukan({ jumlahFoto: 0 }), jendela, [], SEKARANG).reasonCode,
+    ).toBe("ERR_NO_PHOTO");
+
+    expect(
+      verifikasi(
+        ajukan({ submittedAtMs: SEKARANG - 10 * JAM }),
+        jendela,
+        [],
+        SEKARANG,
+      ).reasonCode,
+    ).toBe("ERR_OUTSIDE_WINDOW");
+
+    expect(
+      verifikasi(
+        ajukan(),
+        jendela,
+        [{ userId: "warga_java", windowId: "w2" }],
+        SEKARANG,
+      ).reasonCode,
+    ).toBe("ERR_DUPLICATE");
+  });
+});

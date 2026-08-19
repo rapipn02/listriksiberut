@@ -1,3 +1,4 @@
+import { createHash } from "node:crypto";
 import { Timestamp, FieldValue } from "firebase-admin/firestore";
 import { getAdmin } from "@/lib/firebaseAdmin";
 import { cronDiizinkan, tolakCron } from "@/lib/cronAuth";
@@ -9,6 +10,13 @@ import {
 } from "@/lib/verification";
 
 const MAKS_PER_JALAN = 50;
+
+function sidikFoto(foto: unknown): string[] {
+  if (!Array.isArray(foto)) return [];
+  return foto
+    .filter((f): f is string => typeof f === "string" && f.length > 0)
+    .map((f) => createHash("sha256").update(f).digest("hex"));
+}
 
 export async function POST(request: Request) {
   const dariDashboard = request.headers.get("x-from-dashboard") === "1";
@@ -65,6 +73,11 @@ export async function POST(request: Request) {
       .map((d) => ({ userId: d.data().userId, windowId: d.data().windowId }))
       .filter((k): k is KlaimTersetujui => Boolean(k.userId && k.windowId));
 
+    const hashTerpakai = disetujuiSnap.docs.flatMap((d) => {
+      const v = d.data();
+      return Array.isArray(v.photoHashes) ? (v.photoHashes as string[]) : sidikFoto(v.photosBase64);
+    });
+
     const pengajuan: PengajuanPartisipasi[] = menungguSnap.docs.map((d) => {
       const v = d.data();
       return {
@@ -72,10 +85,17 @@ export async function POST(request: Request) {
         userId: v.userId,
         jumlahFoto: Array.isArray(v.photosBase64) ? v.photosBase64.length : 0,
         submittedAtMs: v.timestamp?.toMillis?.() ?? 0,
+        hashFoto: sidikFoto(v.photosBase64),
       };
     });
 
-    const hasil = verifikasiBanyak(pengajuan, jendela, klaim, sekarang);
+    const hasil = verifikasiBanyak(
+      pengajuan,
+      jendela,
+      klaim,
+      sekarang,
+      hashTerpakai,
+    );
 
     let disetujui = 0;
     let ditolak = 0;
@@ -94,6 +114,8 @@ export async function POST(request: Request) {
             windowId: h.windowId,
             verifiedAt: Timestamp.fromMillis(sekarang),
             verificationReason: h.reason,
+            verificationCode: h.reasonCode,
+            photoHashes: p.hashFoto ?? [],
           });
           tx.set(
             db.collection("BUMDes_rewards").doc(p.userId),
@@ -109,6 +131,8 @@ export async function POST(request: Request) {
           windowId: h.windowId,
           verifiedAt: Timestamp.fromMillis(sekarang),
           verificationReason: h.reason,
+          verificationCode: h.reasonCode,
+          photoHashes: p.hashFoto ?? [],
         });
         ditolak++;
       }

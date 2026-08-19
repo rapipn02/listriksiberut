@@ -5,6 +5,7 @@ export interface ForecastPoint {
   beban: number;
   plts: number;
   deficit: boolean;
+  waktuMs?: number;
 }
 
 export interface WeatherNow {
@@ -40,16 +41,6 @@ export function buildDemoForecasts(): ForecastPoint[] {
   return out;
 }
 
-export const demoProduksiSurya = [
-  { hari: "Sen", kwh: 60 },
-  { hari: "Sel", kwh: 90 },
-  { hari: "Rab", kwh: 50 },
-  { hari: "Kam", kwh: 100 },
-  { hari: "Jum", kwh: 70 },
-  { hari: "Sab", kwh: 42 },
-  { hari: "Min", kwh: 35 },
-];
-
 export const demoRewards = [
   { id: "1", user_id: "u1", nama_warga: "Java Maulana", nomor_hp: "0812-3456-7890", total_poin: 150, status: "Aktif" as const },
   { id: "2", user_id: "u2", nama_warga: "Siti Rahma", nomor_hp: "0821-9876-5432", total_poin: 132, status: "Aktif" as const },
@@ -57,16 +48,4 @@ export const demoRewards = [
   { id: "4", user_id: "u4", nama_warga: "Nia Kurnia", nomor_hp: "0856-1112-2233", total_poin: 96, status: "Aktif" as const },
   { id: "5", user_id: "u5", nama_warga: "Doni Saputra", nomor_hp: "0878-2223-3344", total_poin: 74, status: "Pending" as const },
   { id: "6", user_id: "u6", nama_warga: "Lastri Wulandari", nomor_hp: "0899-5556-6677", total_poin: 58, status: "Nonaktif" as const },
-];
-
-export const demoApprovals = [
-  { id: "a1", nama: "Java Maulana", hadiah: "Voucher Token 20 kWh", poin: 120, avatar: "bg-brand-600" },
-  { id: "a2", nama: "Siti Rahma", hadiah: "Paket Sembako", poin: 100, avatar: "bg-blue-500" },
-  { id: "a3", nama: "Rudi Hartono", hadiah: "Voucher Pulsa 25rb", poin: 60, avatar: "bg-orange-500" },
-];
-
-export const demoBroadcastHistory = [
-  { id: "b1", title: "Alert Defisit Malam", waktu: "18:02 WIB · 642 warga", icon: "⚡", bg: "bg-red-50" },
-  { id: "b2", title: "Jam Emas Surya", waktu: "09:45 WIB · 642 warga", icon: "☀️", bg: "bg-amber-50" },
-  { id: "b3", title: "Info Poin & Hadiah", waktu: "Kemarin · 512 warga", icon: "🎁", bg: "bg-purple-50" },
 ];

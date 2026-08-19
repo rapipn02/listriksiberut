@@ -146,6 +146,7 @@ export default function VerifikasiPage() {
           <li>Waktu kirim harus berada dalam jendela imbauan yang aktif.</li>
           <li>Warga belum pernah menerima poin di jendela yang sama.</li>
           <li>Foto bukti ada dan waktunya masuk akal.</li>
+          <li>Foto belum pernah dipakai pengajuan lain (sidik jari SHA-256).</li>
         </ol>
         <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-3">
           Penilaian memakai aturan, bukan pencocokan penurunan beban sungguhan —
@@ -191,8 +192,13 @@ export default function VerifikasiPage() {
                         : ""}
                     </p>
                     {p.verificationReason && (
-                      <p className="text-xs text-slate-600 mt-1.5 bg-slate-50 rounded px-2 py-1">
-                        {p.verificationReason}
+                      <p className="text-xs text-slate-600 mt-1.5 bg-slate-50 rounded px-2 py-1 flex items-start gap-2 flex-wrap">
+                        <span className="flex-1 min-w-0">{p.verificationReason}</span>
+                        {p.verificationCode && (
+                          <code className="text-[10px] font-mono text-slate-500 bg-white border border-slate-200 rounded px-1.5 py-0.5 shrink-0">
+                            {p.verificationCode}
+                          </code>
+                        )}
                       </p>
                     )}
 

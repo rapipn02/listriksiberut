@@ -67,6 +67,7 @@ export interface BroadcastNotification {
   message: string;
   target_topic: string;
   timestamp: Timestamp;
+  dibuat_oleh?: string;
 }
 
 export type SessionStatus = "UPCOMING" | "ACTIVE" | "ENDED";
@@ -112,6 +113,8 @@ export interface ParticipationRequest {
   poinDiberikan?: number;
   verifiedAt?: Timestamp;
   verificationReason?: string;
+  verificationCode?: string;
+  photoHashes?: string[];
 }
 
 export type RewardIcon = "FLASH" | "SHOPPING" | "WATER";
