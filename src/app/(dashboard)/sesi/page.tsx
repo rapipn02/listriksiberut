@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useSessions } from "@/hooks/useSessions";
+import { useSystemStatus } from "@/hooks/useSystemStatus";
+import { persenPartisipasi, persenTeks, totalKk } from "@/lib/desa";
 import {
   buatSesi,
   ubahStatusSesi,
@@ -37,6 +39,8 @@ function hariIni() {
 export default function SesiPage() {
   const { session } = useAuth();
   const { items, aktif } = useSessions();
+  const { status } = useSystemStatus();
+  const kk = totalKk(status);
 
   const [tanggal, setTanggal] = useState(hariIni());
   const [mulai, setMulai] = useState("10:00");
@@ -153,10 +157,30 @@ export default function SesiPage() {
               {aktif[0].startTime} – {aktif[0].endTime}
             </p>
             <p className="text-sm text-white/90 mt-1">
-              {aktif[0].participantCount} warga ikut · beban{" "}
-              {aktif[0].currentLoadKw} kW dari {aktif[0].capacityKw} kW · target
-              hemat {aktif[0].targetSavingKwh} kWh
+              beban {aktif[0].currentLoadKw} kW dari {aktif[0].capacityKw} kW ·
+              target hemat {aktif[0].targetSavingKwh} kWh
             </p>
+            <div className="mt-3 max-w-sm">
+              <div className="flex items-baseline justify-between text-sm">
+                <span className="text-white/90">
+                  {aktif[0].participantCount} dari {kk} KK asumsi ikut
+                </span>
+                <span className="font-bold">
+                  {persenTeks(persenPartisipasi(aktif[0].participantCount, kk))}%
+                </span>
+              </div>
+              <div className="h-1.5 rounded-full bg-white/25 mt-1.5 overflow-hidden">
+                <div
+                  className="h-full rounded-full bg-white"
+                  style={{
+                    width: `${Math.min(
+                      100,
+                      persenPartisipasi(aktif[0].participantCount, kk),
+                    )}%`,
+                  }}
+                />
+              </div>
+            </div>
           </>
         ) : (
           <>
@@ -273,8 +297,10 @@ export default function SesiPage() {
                       </div>
                       <p className="text-xs text-slate-500 mt-0.5">{s.date}</p>
                       <p className="text-xs text-slate-600 mt-1">
-                        {s.participantCount} peserta · beban {s.currentLoadKw} /{" "}
-                        {s.capacityKw} kW · target {s.targetSavingKwh} kWh
+                        {s.participantCount} peserta ·{" "}
+                        {persenTeks(persenPartisipasi(s.participantCount, kk))}% dari {kk} KK
+                        asumsi · beban {s.currentLoadKw} / {s.capacityKw} kW ·
+                        target {s.targetSavingKwh} kWh
                       </p>
                     </div>
                     <div className="flex gap-2 shrink-0">

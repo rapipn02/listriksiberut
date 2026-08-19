@@ -6,8 +6,10 @@ import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { usePowerForecasts, useSolarWeekly } from "@/hooks/usePowerForecasts";
 import { findGreenWindow } from "@/lib/greenHours";
 import { tampilanStatus } from "@/lib/gridStatus";
+import { persenPartisipasi, persenTeks, totalKk } from "@/lib/desa";
+import { useSessions } from "@/hooks/useSessions";
 import PowerBalanceChart from "@/components/PowerBalanceChart";
-import Countdown from "@/components/Countdown";
+import KartuWaktuGrid from "@/components/Countdown";
 import {
   Send,
   Download,
@@ -50,6 +52,7 @@ export default function DashboardPage() {
   const { status } = useSystemStatus();
   const { points, weather } = usePowerForecasts();
   const { hari: produksiSurya } = useSolarWeekly();
+  const { aktif } = useSessions();
   const [refreshing, setRefreshing] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
 
@@ -67,14 +70,20 @@ export default function DashboardPage() {
   const maxSolar = Math.max(1, ...produksiSurya.map((d) => d.kwh));
 
   const green = findGreenWindow(points);
-  const sedangDefisit = points.length > 0 && points[0].deficit;
-  const titikDefisit = useMemo(
+  const titikGrid = useMemo(
     () =>
       points
-        .filter((p) => p.deficit && p.waktuMs)
-        .map((p) => ({ waktuMs: p.waktuMs as number, jam: p.jam })),
+        .filter((p) => p.waktuMs)
+        .map((p) => ({
+          waktuMs: p.waktuMs as number,
+          jam: p.jam,
+          defisit: p.deficit,
+        })),
     [points],
   );
+
+  const kk = totalKk(status);
+  const sesiBerjalan = aktif[0];
 
   const updatedAt = status?.updated_at?.toDate?.();
   const isStale = updatedAt ? Date.now() - updatedAt.getTime() > STALE_AFTER_MS : false;
@@ -256,10 +265,27 @@ export default function DashboardPage() {
               Imbau warga berhemat sepanjang hari.
             </p>
           )}
+          <div className="mt-auto pt-4 text-xs border-t border-slate-100">
+            {sesiBerjalan ? (
+              <>
+                <p className="text-slate-500">
+                  Partisipasi sesi {sesiBerjalan.startTime}–{sesiBerjalan.endTime}
+                </p>
+                <p className="font-semibold text-slate-700 mt-0.5">
+                  {sesiBerjalan.participantCount} dari {kk} KK asumsi (
+                  {persenTeks(persenPartisipasi(sesiBerjalan.participantCount, kk))}%)
+                </p>
+              </>
+            ) : (
+              <p className="text-slate-500">
+                Belum ada sesi berjalan · {kk} KK asumsi
+              </p>
+            )}
+          </div>
           <button
             onClick={() => router.push("/notifikasi")}
             disabled={!green}
-            className="mt-auto flex items-center justify-center gap-2 py-2.5 rounded-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-semibold text-sm"
+            className="mt-3 flex items-center justify-center gap-2 py-2.5 rounded-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white font-semibold text-sm"
           >
             <Send className="w-4 h-4" />
             Kirim ke Warga
@@ -335,30 +361,7 @@ export default function DashboardPage() {
           )}
         </div>
 
-        <div className="rounded-xl p-5 text-white bg-gradient-to-br from-slate-900 to-slate-800">
-          <div className="flex items-center justify-between">
-            <div>
-              <h3 className="font-semibold">Waktu Menuju Defisit</h3>
-              <p className="text-xs text-slate-400">Estimasi beban lampaui surya</p>
-            </div>
-            <span className="text-[10px] font-semibold text-red-300 bg-red-500/20 rounded-full px-2 py-0.5 flex items-center gap-1">
-              <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-              LIVE
-            </span>
-          </div>
-          {sedangDefisit ? (
-            <>
-              <div className="text-2xl sm:text-3xl font-extrabold mt-6 mb-1">
-                SEDANG DEFISIT
-              </div>
-              <p className="text-xs text-slate-400">
-                Beban sudah melampaui produksi surya
-              </p>
-            </>
-          ) : (
-            <Countdown titik={titikDefisit} />
-          )}
-        </div>
+        <KartuWaktuGrid titik={titikGrid} />
       </div>
     </div>
   );

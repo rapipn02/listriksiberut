@@ -6,6 +6,7 @@ export interface SystemStatus {
   current_status: GridStatus;
   total_plts_capacity_kw: number;
   total_pltd_capacity_kw: number;
+  total_households?: number;
   updated_at?: Timestamp;
 
   current_operating_status?: GridStatus;
