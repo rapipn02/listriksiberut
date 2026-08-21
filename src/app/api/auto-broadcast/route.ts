@@ -7,6 +7,7 @@ import {
   type TitikBeban,
 } from "@/lib/gridThresholds";
 import { findGreenWindow } from "@/lib/greenHours";
+import { rataRataPltsRentang } from "@/lib/kapasitasSesi";
 
 const DURASI_JENDELA_JAM = 4;
 
@@ -142,6 +143,12 @@ export async function POST(request: Request) {
 
     const mulai = new Date(sekarang);
     const selesai = new Date(sekarang + DURASI_JENDELA_JAM * 3600_000);
+    const kapasitasPltsSesi =
+      rataRataPltsRentang(
+        titik.map((t) => ({ jam: t.jam, plts: t.pltsKw })),
+        jamWib(mulai),
+        jamWib(selesai),
+      ) ?? 0;
     const sesiRef = db.collection("load_shift_sessions").doc();
     batch.set(sesiRef, {
       date: tanggalId(mulai),
@@ -155,7 +162,7 @@ export async function POST(request: Request) {
             DURASI_JENDELA_JAM *
             10,
         ) / 10,
-      capacityKw: kapasitasPltd,
+      capacityKw: kapasitasPltsSesi,
       currentLoadKw: hasil.pemicu?.bebanKw ?? 0,
       participantCount: 0,
       poin_per_partisipasi: poinPerPartisipasi,

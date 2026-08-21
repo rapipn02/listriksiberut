@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useBroadcasts, waktuRelatif } from "@/hooks/useBroadcasts";
 import { useRewards } from "@/hooks/useRewards";
@@ -9,6 +9,7 @@ import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { usePowerForecasts } from "@/hooks/usePowerForecasts";
 import { findGreenWindow } from "@/lib/greenHours";
 import { buatSesi } from "@/lib/sessionActions";
+import { rataRataPltsRentang } from "@/lib/kapasitasSesi";
 import { saveInsentifPoin } from "@/lib/rewardActions";
 import { isFirebaseConfigured } from "@/lib/firebase";
 import { Send } from "@/components/icons";
@@ -37,10 +38,21 @@ export default function NotifikasiPage() {
   const [buatSesiJamEmas, setBuatSesiJamEmas] = useState(false);
   const [sesiMulai, setSesiMulai] = useState("10:00");
   const [sesiSelesai, setSesiSelesai] = useState("15:00");
+  const [sesiKapasitas, setSesiKapasitas] = useState("");
+  const [kapasitasOtomatis, setKapasitasOtomatis] = useState(true);
   const [busy, setBusy] = useState(false);
   const [savingPoin, setSavingPoin] = useState(false);
   const [poinToast, setPoinToast] = useState("");
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!kapasitasOtomatis) return;
+    const id = setTimeout(() => {
+      const rata = rataRataPltsRentang(points, sesiMulai, sesiSelesai);
+      if (rata !== null) setSesiKapasitas(String(rata));
+    }, 0);
+    return () => clearTimeout(id);
+  }, [sesiMulai, sesiSelesai, points, kapasitasOtomatis]);
 
   async function simpanPoin() {
     const n = Number(poin);
@@ -71,6 +83,7 @@ export default function NotifikasiPage() {
     );
     setSesiMulai(green.mulai);
     setSesiSelesai(green.selesai);
+    setKapasitasOtomatis(true);
     setBuatSesiJamEmas(true);
   }
 
@@ -90,7 +103,7 @@ export default function NotifikasiPage() {
           startTime: sesiMulai,
           endTime: sesiSelesai,
           targetSavingKwh: Math.round((green?.surplusKw ?? 0) * jam),
-          capacityKw: status?.total_pltd_capacity_kw ?? 0,
+          capacityKw: Number(sesiKapasitas) || (status?.total_plts_capacity_kw ?? 0),
           poinPerPartisipasi: Number(poin) || 25,
         },
         session?.uid ?? "operator",
@@ -221,6 +234,33 @@ export default function NotifikasiPage() {
                         className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
                       />
                     </div>
+                  </div>
+                  <div className="mt-3">
+                    <label className="text-xs text-slate-500 block mb-1">
+                      Kapasitas PLTS (kW)
+                    </label>
+                    <input
+                      type="number"
+                      value={sesiKapasitas}
+                      onChange={(e) => {
+                        setKapasitasOtomatis(false);
+                        setSesiKapasitas(e.target.value);
+                      }}
+                      className="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-brand-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setKapasitasOtomatis(true)}
+                      className={`text-[11px] mt-1 ${
+                        kapasitasOtomatis
+                          ? "text-slate-500"
+                          : "text-brand-600 hover:underline"
+                      }`}
+                    >
+                      {kapasitasOtomatis
+                        ? "otomatis: rata-rata prediksi PLTS jendela ini"
+                        : "pakai rata-rata prediksi PLTS lagi"}
+                    </button>
                   </div>
                   <p className="text-xs text-slate-600 mt-2">
                     {aktif.length > 0

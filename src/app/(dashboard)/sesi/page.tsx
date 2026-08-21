@@ -1,9 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useSessions } from "@/hooks/useSessions";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
+import { usePowerForecasts } from "@/hooks/usePowerForecasts";
+import { rataRataPltsRentang } from "@/lib/kapasitasSesi";
 import { persenPartisipasi, persenTeks, totalKk } from "@/lib/desa";
 import {
   buatSesi,
@@ -40,6 +42,7 @@ export default function SesiPage() {
   const { session } = useAuth();
   const { items, aktif } = useSessions();
   const { status } = useSystemStatus();
+  const { points } = usePowerForecasts();
   const kk = totalKk(status);
 
   const [tanggal, setTanggal] = useState(hariIni());
@@ -47,9 +50,19 @@ export default function SesiPage() {
   const [selesai, setSelesai] = useState("15:00");
   const [target, setTarget] = useState("30");
   const [kapasitas, setKapasitas] = useState("50");
+  const [kapasitasOtomatis, setKapasitasOtomatis] = useState(true);
   const [poin, setPoin] = useState("25");
   const [busy, setBusy] = useState(false);
   const [toast, setToast] = useState<{ ok: boolean; text: string } | null>(null);
+
+  useEffect(() => {
+    if (!kapasitasOtomatis) return;
+    const id = setTimeout(() => {
+      const rata = rataRataPltsRentang(points, mulai, selesai);
+      if (rata !== null) setKapasitas(String(rata));
+    }, 0);
+    return () => clearTimeout(id);
+  }, [mulai, selesai, points, kapasitasOtomatis]);
 
   if (session && session.role !== "admin_bumdes") {
     return (
@@ -238,13 +251,29 @@ export default function SesiPage() {
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
               </Isian>
-              <Isian label="Kapasitas PLTD (kW)">
+              <Isian label="Kapasitas PLTS (kW)">
                 <input
                   type="number"
                   value={kapasitas}
-                  onChange={(e) => setKapasitas(e.target.value)}
+                  onChange={(e) => {
+                    setKapasitasOtomatis(false);
+                    setKapasitas(e.target.value);
+                  }}
                   className="w-full px-3 py-2 rounded-lg border border-slate-300 focus:outline-none focus:ring-2 focus:ring-brand-500"
                 />
+                <button
+                  type="button"
+                  onClick={() => setKapasitasOtomatis(true)}
+                  className={`text-[11px] mt-1 ${
+                    kapasitasOtomatis
+                      ? "text-slate-400"
+                      : "text-brand-600 hover:underline"
+                  }`}
+                >
+                  {kapasitasOtomatis
+                    ? "otomatis: rata-rata prediksi PLTS jendela ini"
+                    : "pakai rata-rata prediksi PLTS lagi"}
+                </button>
               </Isian>
             </div>
             <Isian label="Poin per partisipasi">
@@ -311,8 +340,9 @@ export default function SesiPage() {
                         {persenTeks(persenPartisipasi(s.participantCount, kk))}%)
                       </p>
                       <p className="text-xs text-slate-500 mt-1">
-                        beban {s.currentLoadKw} / {s.capacityKw} kW (batas
-                        PLTD) · target pengalihan {s.targetSavingKwh} kWh
+                        beban {s.currentLoadKw} / {s.capacityKw} kW
+                        (kapasitas PLTS) · target pengalihan{" "}
+                        {s.targetSavingKwh} kWh
                       </p>
                     </div>
                     <div className="flex gap-2 shrink-0">
