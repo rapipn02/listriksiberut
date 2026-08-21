@@ -404,7 +404,7 @@ function MetricCard({
         </span>
       </div>
       <div>
-        <div className="text-6xl sm:text-5xl font-extrabold">
+        <div className="text-6xl sm:text-5xl font-extrabold mb-7">
           {value}
           <span className="text-xl font-semibold text-slate-400 ml-1">
             {unit}

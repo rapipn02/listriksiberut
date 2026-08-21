@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useAuth } from "@/components/AuthProvider";
 import { useSystemStatus } from "@/hooks/useSystemStatus";
 import { usePowerForecasts } from "@/hooks/usePowerForecasts";
-import { FUEL } from "@/lib/fuel";
+import { FUEL, literPenuhPerHari } from "@/lib/fuel";
 import { idr } from "@/lib/format";
 import { isFirebaseConfigured } from "@/lib/firebase";
 
@@ -150,11 +150,19 @@ export default function PengaturanPage() {
             <Kotak label="Emisi CO₂" nilai={`${FUEL.co2PerLiter} kg/L`} />
             <Kotak
               label="Serapan 1 pohon"
-              nilai={`${FUEL.co2SerapPohonPerHari} kg/hari`}
+              nilai={`${FUEL.co2SerapPohonPerTahun} kg/tahun`}
             />
             <Kotak
               label="Potensi maks."
-              nilai={`${FUEL.literPenuhPerHari} L/hari`}
+              nilai={`${literPenuhPerHari()} L/hari`}
+            />
+            <Kotak
+              label="Defisit malam"
+              nilai={`${FUEL.defisitRataRataKw} kW × ${FUEL.jamPotensiPergeseranPerHari} jam`}
+            />
+            <Kotak
+              label="Konsumsi genset"
+              nilai={`${FUEL.literPerKwhGenset} L/kWh`}
             />
           </div>
           <p className="text-xs text-amber-700 bg-amber-50 rounded-lg px-3 py-2 mt-4">

@@ -81,7 +81,7 @@ export default function KalkulatorPage() {
           label="Reduksi Emisi CO₂ / hari"
           value={`${num(h.co2)} `}
           unit="kg"
-          sub={`Setara ${num(h.pohon)} pohon/hari`}
+          sub={`≈ ${num(h.pohonTahun)} pohon/tahun (dari total tahunan)`}
           subClass="text-slate-500"
         />
 
@@ -131,7 +131,10 @@ export default function KalkulatorPage() {
         <div className="rounded-xl bg-white border border-slate-200 p-4 xl:col-span-3 text-sm text-slate-600 flex items-center">
           <b className="mr-1">Asumsi:</b> harga solar{" "}
           {idr(FUEL.hargaSolarPerLiter)}/L · 1 L ≈ {FUEL.co2PerLiter} kg CO₂ ·
-          defisit rata-rata 25 kW malam hari.
+          defisit rata-rata {FUEL.defisitRataRataKw} kW selama{" "}
+          {FUEL.jamPotensiPergeseranPerHari} jam malam hari · genset{" "}
+          {FUEL.literPerKwhGenset} L/kWh · serapan karbon 1 pohon{" "}
+          {FUEL.co2SerapPohonPerTahun} kg/tahun.
         </div>
       </div>
     </div>
