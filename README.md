@@ -6,6 +6,52 @@ dan mengelola poin serta hadiah.
 
 Next.js 16 · React 19 · Firebase (Auth + Firestore) · Tailwind 4 · Recharts
 
+---
+
+## Menjalankan
+
+```bash
+git clone https://github.com/rapipn02/listriksiberut.git
+cd listriksiberut
+npm install
+cp .env.example .env.local     # lalu isi nilainya, lihat tabel di bawah
+npm run dev                    # http://localhost:3000
+```
+
+Firebase **wajib** dikonfigurasi — login memakai Firebase Auth, tidak ada mode
+demo tanpa autentikasi.
+
+### Isi `.env.local`
+
+| Variabel | Diambil dari |
+|---|---|
+| `NEXT_PUBLIC_FIREBASE_API_KEY`, `MESSAGING_SENDER_ID`, `APP_ID` | Firebase Console → Project settings → General → Your apps |
+| `GOOGLE_APPLICATION_CREDENTIALS` | Project settings → Service accounts → Generate new private key, simpan sebagai `serviceAccountKey.json` di folder ini (**jangan commit** — sudah di `.gitignore`) |
+| `CRON_SECRET` | bebas, buat acak: `openssl rand -hex 32` |
+| `ISLANDGRID_API_BASE_URL` | alamat layanan prediksi ML (opsional, boleh kosong saat pengembangan lokal) |
+
+Sisanya sudah terisi nilai default di `.env.example`.
+
+### Menyiapkan data + akun operator
+
+```bash
+npm run seed
+```
+
+Membuat akun operator (`admin@bumdes.id` / `teknisi@bumdes.id`, kata sandi
+`password123`), warga contoh, katalog hadiah, stok voucher, sesi Jam Emas yang
+sedang berjalan, dan beberapa pengajuan bukti foto untuk dicoba.
+
+> Koleksi `power_forecasts` milik pipeline ML — seed sengaja melewatinya bila
+> sudah berisi data, supaya tidak menimpa hasil tim ML yang sedang jalan.
+
+### Verifikasi instalasi
+
+```bash
+npm test        # 65 unit test harus lolos
+npx tsc --noEmit
+npm run build
+```
 
 ## Peran
 
