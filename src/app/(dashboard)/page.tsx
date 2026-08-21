@@ -360,11 +360,15 @@ export default function DashboardPage() {
                 className="flex-1 h-full flex flex-col items-center justify-end gap-1"
               >
                 <div
-                  className={`w-full rounded ${
+                  className={`group relative w-full rounded ${
                     d.kwh === maxSolar ? "bg-brand-600" : "bg-brand-200"
                   }`}
-                  style={{ height: `${(d.kwh / maxSolar) * 90}%` }}
-                />
+                  style={{ height: `${(d.kwh / maxSolar) * 65}%` }}
+                >
+                  <div className="pointer-events-none absolute -top-7 left-1/2 -translate-x-1/2 whitespace-nowrap rounded bg-slate-900 px-2 py-1 text-[11px] font-semibold text-white opacity-0 transition group-hover:opacity-100 z-10">
+                    {d.kwh} kWh
+                  </div>
+                </div>
                 <span className="text-[10px] text-slate-400">{d.hari}</span>
               </div>
             ))}
