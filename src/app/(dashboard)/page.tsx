@@ -212,14 +212,14 @@ export default function DashboardPage() {
           label="Kapasitas PLTS"
           value={plts}
           unit="kWp"
-          note="▲ Panel surya terpasang"
+          note=""
           noteClass="text-brand-600"
         />
         <MetricCard
           label="Prediksi Beban Puncak"
           value={bebanPuncak}
           unit="kW"
-          note={`Batas aman PLTD ${pltd} kW`}
+          note={``}
           noteClass={bebanPuncak > pltd ? "text-red-500" : "text-slate-500"}
         />
       </div>
@@ -404,9 +404,9 @@ function MetricCard({
         </span>
       </div>
       <div>
-        <div className="text-3xl sm:text-4xl font-extrabold">
+        <div className="text-6xl sm:text-5xl font-extrabold">
           {value}
-          <span className="text-lg font-semibold text-slate-400 ml-1">
+          <span className="text-xl font-semibold text-slate-400 ml-1">
             {unit}
           </span>
         </div>
